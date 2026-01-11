@@ -5,6 +5,7 @@ const app = express();
 const ejsMate = require("ejs-mate");
 const path = require("path");
 const session = require("express-session");
+const MongoStore = require("connect-mongo");
 const flash = require("connect-flash");
 const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
@@ -54,33 +55,33 @@ app.use(fileUpload({
 //   })
 // );
 
-const MongoStore = require("connect-mongo");
 
-// SESSION STORE
-const store = new MongoStore({
-  url: process.env.ATLAS_DB,
-  ttl: 24 * 60 * 60 // 1 day
+
+/* ---- SESSION ---- */
+const store = MongoStore.create({
+  mongoUrl: process.env.ATLAS_DB,     // Atlas database URL
+  secret: process.env.SESSION_SECRET,
+  touchAfter: 24 * 3600,  
+  crypto: {
+        secret: process.env.SESSION_SECRET // For encrypted sessions
+    }
 });
 
 store.on("error", (err) => {
-  console.log("SESSION STORE ERROR:", err);
+  console.log("SESSION STORE ERROR:", err);  // ADD THIS TO SEE EXACT ERROR
 });
 
-// SESSION MIDDLEWARE
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: false,
-    store: store,
-    cookie: {
-      maxAge: 1000 * 60 * 60 * 24,
-      httpOnly: true,
-      secure: true,         // REQUIRED for Vercel HTTPS
-      sameSite: "none"      // REQUIRED with secure cookies
-    }
-  })
-);
+const sessionOptions = {
+  store: store,
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: true,
+  cookie: {
+    expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+    httpOnly: true
+  }
+};
 
 
 
