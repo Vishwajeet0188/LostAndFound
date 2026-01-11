@@ -188,19 +188,15 @@ app.get("/", async (req, res) => {
   }
 });
 
-// 404 Handler
 app.use((req, res) => {
-  res.status(404).render("pages/404", { user: req.user });
+  res.status(404).send("404 - Page Not Found");
 });
 
-// Error handler
 app.use((err, req, res, next) => {
-  console.error("❌ Server Error:", err.stack);
-  res.status(500).render("pages/500", { 
-    error: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong!',
-    user: req.user 
-  });
+  console.error(err.stack);
+  res.status(500).send("500 - Server Error");
 });
+
 
  
 // SERVER 
