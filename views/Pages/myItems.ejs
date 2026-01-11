@@ -1,0 +1,346 @@
+<% layout("layouts/boilerplate") %>
+
+<div class="container my-items-page mt-4">
+
+  <h2 class="page-title mb-4">
+    <i class="fas fa-user me-2"></i> My Items
+  </h2>
+
+  <!-- TABS -->
+  <ul class="nav nav-tabs mb-4">
+    <li class="nav-item">
+      <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#listed">
+        My Listed Items
+      </button>
+    </li>
+    <li class="nav-item">
+      <button class="nav-link" data-bs-toggle="tab" data-bs-target="#reported">
+        Items I Reported
+      </button>
+    </li>
+  </ul>
+
+  <div class="tab-content">
+
+    <!-- ================= LISTED ITEMS ================= -->
+    <div class="tab-pane fade show active" id="listed">
+
+      <% if (myItems.length === 0) { %>
+        <div class="empty-state text-center">
+          <i class="fas fa-box-open"></i>
+          <h4>No items listed yet</h4>
+          <p>You haven’t listed any items.</p>
+          <a href="/items/create" class="btn btn-primary mt-2">+ Add Item</a>
+        </div>
+      <% } else { %>
+
+        <div class="row">
+          <% myItems.forEach(item => { %>
+            <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 mb-4">
+
+              <div class="item-card">
+
+                <span class="status-badge <%= item.status %>">
+                  <%= item.status.toUpperCase() %>
+                </span>
+
+               <div class="item-img-wrapper">
+                <img src="<%= item.image %>" alt="<%= item.title %>">
+              </div>
+
+
+                <div class="item-body">
+                  <h5><%= item.title %></h5>
+                  <p class="location">
+                    <i class="fas fa-map-marker-alt"></i> <%= item.location %>
+                  </p>
+                  <a href="/items/<%= item._id %>" class="btn btn-outline-primary btn-sm">
+                    View Details
+                  </a>
+                </div>
+
+              </div>
+            </div>
+          <% }) %>
+        </div>
+
+      <% } %>
+
+    </div>
+
+    <!-- ================= REPORTED ITEMS ================= -->
+    <div class="tab-pane fade" id="reported">
+
+      <% if (reportedItems.length === 0) { %>
+        <div class="empty-state text-center">
+          <i class="fas fa-search"></i>
+          <h4>No reported items</h4>
+          <p>You haven’t reported any found items.</p>
+        </div>
+      <% } else { %>
+
+        <div class="row">
+          <% reportedItems.forEach(item => { %>
+            <div class="col-md-4 mb-4">
+              <div class="item-card">
+
+                <span class="status-badge found">FOUND</span>
+
+                <div class="item-img-wrapper">  <!-- ADD THIS WRAPPER -->
+                  <img src="<%= item.image %>" alt="<%= item.title %>">
+                </div>
+
+                <div class="item-body">
+                  <h5><%= item.title %></h5>
+                  <p class="location">
+                    <i class="fas fa-map-marker-alt"></i> <%= item.location %>
+                  </p>
+                  <div class="card-actions">
+                    <a href="/items/<%= item._id %>" class="btn btn-outline-primary btn-sm">
+                      View Details
+                    </a>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          <% }) %>
+        </div>
+
+      <% } %>
+
+    </div>
+
+  </div>
+</div>
+
+<style>
+.my-items-page {
+  min-height: 70vh;
+}
+
+/* Title */
+.page-title {
+  font-weight: 700;
+  color: #2d2f48;
+  border-bottom: 3px solid #667eea;
+  padding-bottom: 10px;
+  display: inline-block;
+}
+
+/* Tabs */
+.nav-tabs {
+  border-bottom: 2px solid #dee2e6;
+  margin-bottom: 25px;
+}
+
+.nav-tabs .nav-link {
+  border: none;
+  color: #6c757d;
+  font-weight: 600;
+  padding: 12px 24px;
+  border-radius: 8px 8px 0 0;
+  margin-right: 5px;
+  transition: all 0.3s ease;
+}
+
+.nav-tabs .nav-link:hover {
+  color: #667eea;
+  background: #f8f9fa;
+}
+
+.nav-tabs .nav-link.active {
+  background: #667eea;
+  color: white;
+  border-radius: 8px 8px 0 0;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+/* Empty State */
+.empty-state {
+  background: linear-gradient(135deg, #f8f9ff, #eef1ff);
+  padding: 60px 30px;
+  border-radius: 16px;
+  border: 2px dashed #667eea;
+  text-align: center;
+  margin: 40px 0;
+}
+
+.empty-state i {
+  font-size: 48px;
+  color: #667eea;
+  margin-bottom: 20px;
+}
+
+.empty-state h4 {
+  color: #2d2f48;
+  margin-bottom: 10px;
+}
+
+/* Card Container */
+.row {
+  margin: 0 -10px;
+}
+
+.col-xl-3, .col-lg-4, .col-md-6, .col-sm-12 {
+  padding: 10px;
+}
+
+/* Card Styling - IMPROVED */
+.item-card {
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  border: 1px solid #e9ecef;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.item-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 15px 35px rgba(102, 126, 234, 0.25);
+  border-color: #667eea;
+}
+
+/* Image Wrapper - Balanced */
+.item-img-wrapper {
+  height: 170px;
+  background: #f8f9fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 15px;
+  border-radius: 8px 8px 0 0;
+  margin: 8px;
+}
+
+.item-img-wrapper img {
+  max-height: 140px; /* Fixed max height */
+  max-width: 90%;
+  object-fit: contain;
+  border-radius: 4px;
+  transition: transform 0.3s ease;
+}
+
+.item-card:hover .item-img-wrapper img {
+  transform: scale(1.05);
+}
+/* Card Body - IMPROVED */
+.item-body {
+  padding: 20px;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.item-body h5 {
+  font-weight: 700;
+  color: #2d2f48;
+  margin-bottom: 8px;
+  font-size: 1.1rem;
+  line-height: 1.3;
+  min-height: 2.6em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.location {
+  font-size: 0.9rem;
+  color: #6c757d;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.location i {
+  color: #667eea;
+}
+
+/* Status Badge - IMPROVED */
+.status-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  padding: 6px 14px;
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 20px;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  z-index: 10;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+}
+
+.status-badge.lost {
+  background: linear-gradient(135deg, #ff6b6b, #ff4757);
+}
+
+.status-badge.found {
+  background: linear-gradient(135deg, #2ecc71, #27ae60);
+}
+
+/* Button - IMPROVED */
+.btn-outline-primary {
+  border: 2px solid #667eea;
+  color: #667eea;
+  font-weight: 600;
+  padding: 8px 20px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  margin-top: auto;
+  align-self: flex-start;
+}
+
+.btn-outline-primary:hover {
+  background: #667eea;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(102, 126, 234, 0.4);
+}
+
+/* Card Actions */
+.card-actions {
+  margin-top: auto;
+  padding-top: 15px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .item-img-wrapper {
+    height: 180px;
+  }
+  
+  .item-body {
+    padding: 15px;
+  }
+  
+  .nav-tabs .nav-link {
+    padding: 10px 15px;
+    font-size: 0.9rem;
+  }
+}
+</style>
+
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Handle broken images
+    const images = document.querySelectorAll('.item-img-wrapper img');
+    
+    images.forEach(img => {
+      img.onerror = function() {
+        this.src = '/images/default.jpg';
+        this.style.objectFit = 'contain';
+        this.style.padding = '20px';
+      };
+    });
+  });
+</script>

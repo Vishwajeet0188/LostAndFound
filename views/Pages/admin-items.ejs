@@ -1,0 +1,493 @@
+<% layout("layouts/boilerplate") %>
+
+<div class="container-fluid mt-4">
+  <h1 class="mb-4">
+    <i class="fas fa-box me-2"></i>Manage Items
+  </h1>
+  
+  <a href="/admin/dashboard" class="btn btn-secondary mb-3">
+    <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
+  </a>
+  
+  <!-- Flash Messages -->
+  <% if (success_msg && success_msg.length > 0) { %>
+    <div class="alert alert-success alert-dismissible fade show">
+      <%= success_msg %>
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+  <% } %>
+  
+  <% if (error_msg && error_msg.length > 0) { %>
+    <div class="alert alert-danger alert-dismissible fade show">
+      <%= error_msg %>
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+  <% } %>
+  
+  <!-- Search and Filter Bar -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-4">
+          <input type="text" id="searchInput" class="form-control" placeholder="Search items...">
+        </div>
+        <div class="col-md-3">
+          <select id="statusFilter" class="form-select">
+            <option value="">All Status</option>
+            <option value="lost">Lost</option>
+            <option value="found">Found</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <select id="categoryFilter" class="form-select">
+            <option value="">All Categories</option>
+            <option value="electronics">Electronics</option>
+            <option value="documents">Documents</option>
+            <option value="jewelry">Jewelry</option>
+            <option value="clothing">Clothing</option>
+            <option value="keys">Keys</option>
+            <option value="wallet">Wallet/Purse</option>
+            <option value="books">Books</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <button id="resetFilters" class="btn btn-outline-secondary w-100">
+            <i class="fas fa-redo me-1"></i> Reset
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-hover admin-items-table">
+          <thead class="table-dark">
+            <tr>
+              <th>Title</th>
+              <th>Owner</th>
+              <th>Finder</th>
+              <th>Category</th>
+              <th>Status</th>
+              <th>Reward</th>
+              <th>Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="itemsTableBody">
+            <% items.forEach(item => { %>
+              <tr data-status="<%= item.status %>" data-category="<%= item.category || '' %>">
+                <td>
+                  <div class="d-flex align-items-center">
+                    <% if (item.image) { %>
+                      <img src="<%= item.image %>" 
+                           class="rounded me-2 item-thumbnail"
+                           alt="<%= item.title %>"
+                           onerror="this.style.display='none'">
+                    <% } %>
+                    <div>
+                      <a href="/items/<%= item._id %>" class="item-title" target="_blank">
+                        <%= item.title %>
+                      </a>
+                      <div class="text-muted small">
+                        <i class="fas fa-map-marker-alt me-1"></i><%= item.location || 'Unknown location' %>
+                      </div>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <% if (item.owner) { %>
+                    <div class="d-flex align-items-center">
+                      <% if (item.owner.avatar) { %>
+                        <img src="<%= item.owner.avatar %>" 
+                             class="rounded-circle me-1 user-avatar-sm"
+                             alt="<%= item.owner.name %>"
+                             onerror="this.style.display='none'">
+                      <% } %>
+                      <span class="user-name"><%= item.owner.name %></span>
+                    </div>
+                  <% } else { %>
+                    <span class="text-muted">Unknown</span>
+                  <% } %>
+                </td>
+                <td>
+                  <% if (item.reportedBy) { %>
+                    <div class="d-flex align-items-center">
+                      <% if (item.reportedBy.avatar) { %>
+                        <img src="<%= item.reportedBy.avatar %>" 
+                             class="rounded-circle me-1 user-avatar-sm"
+                             alt="<%= item.reportedBy.name %>"
+                             onerror="this.style.display='none'">
+                      <% } %>
+                      <span class="user-name"><%= item.reportedBy.name %></span>
+                    </div>
+                  <% } else { %>
+                    <span class="text-muted">Not reported</span>
+                  <% } %>
+                </td>
+                <td>
+                  <% if (item.category) { %>
+                    <span class="badge category-badge">
+                      <i class="fas fa-<%= 
+                        item.category === 'electronics' ? 'mobile-alt' : 
+                        item.category === 'documents' ? 'file-alt' : 
+                        item.category === 'jewelry' ? 'gem' : 
+                        item.category === 'clothing' ? 'tshirt' : 
+                        item.category === 'keys' ? 'key' : 
+                        item.category === 'wallet' ? 'wallet' : 
+                        item.category === 'books' ? 'book' : 
+                        'tag' 
+                      %> me-1"></i>
+                      <%= item.category.charAt(0).toUpperCase() + item.category.slice(1) %>
+                    </span>
+                  <% } else { %>
+                    <span class="text-muted">Uncategorized</span>
+                  <% } %>
+                </td>
+                <td>
+                  <span class="badge status-badge <%= item.status === 'found' ? 'status-found' : 'status-lost' %>">
+                    <i class="fas fa-<%= item.status === 'found' ? 'check-circle' : 'exclamation-circle' %> me-1"></i>
+                    <%= item.status.toUpperCase() %>
+                  </span>
+                </td>
+                <td>
+                  <% if (item.reward && item.reward > 0) { %>
+                    <span class="badge reward-badge">
+                      <i class="fas fa-gift me-1"></i>₹<%= item.reward %>
+                    </span>
+                  <% } else { %>
+                    <span class="text-muted">None</span>
+                  <% } %>
+                </td>
+                <td><%= new Date(item.createdAt).toLocaleDateString() %></td>
+                <td>
+                  <div class="btn-group" role="group">
+                    <a href="/items/<%= item._id %>" class="btn btn-sm btn-info" 
+                       title="View Details" target="_blank">
+                      <i class="fas fa-eye"></i>
+                    </a>
+                    
+                    <a href="/items/<%= item._id %>/edit" class="btn btn-sm btn-warning ms-1"
+                       title="Edit Item">
+                      <i class="fas fa-edit"></i>
+                    </a>
+                    
+                    <form action="/admin/items/<%= item._id %>/delete" method="POST" class="d-inline ms-1">
+                      <button type="submit" class="btn btn-sm btn-danger" 
+                              title="Delete Item">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            <% }) %>
+            
+            <% if (items.length === 0) { %>
+              <tr>
+                <td colspan="8" class="text-center py-4">
+                  <i class="fas fa-inbox fa-2x text-muted mb-3"></i>
+                  <p class="text-muted">No items found</p>
+                </td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+      
+      <!-- Items Count -->
+      <div class="mt-3 text-muted small">
+        <i class="fas fa-info-circle me-1"></i>
+        Showing <span id="visibleCount"><%= items.length %></span> of <%= items.length %> items
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Admin Items Page Styles */
+  .admin-items-table {
+    font-size: 0.9rem;
+  }
+  
+  .admin-items-table th {
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+    padding: 12px 15px;
+  }
+  
+  .admin-items-table td {
+    padding: 12px 15px;
+    vertical-align: middle;
+  }
+  
+  /* Item Thumbnail */
+  .item-thumbnail {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+  }
+  
+  .item-title {
+    font-weight: 600;
+    color: #2c3e50;
+    text-decoration: none;
+    display: block;
+    margin-bottom: 2px;
+  }
+  
+  .item-title:hover {
+    color: #007bff;
+    text-decoration: underline;
+  }
+  
+  /* User Avatars */
+  .user-avatar-sm {
+    width: 24px;
+    height: 24px;
+    object-fit: cover;
+    border: 1px solid #dee2e6;
+  }
+  
+  .user-name {
+    font-size: 0.85rem;
+  }
+  
+  /* Status Badges */
+  .status-badge {
+    padding: 5px 10px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border-radius: 20px;
+    display: inline-flex;
+    align-items: center;
+    min-width: 80px;
+    justify-content: center;
+  }
+  
+  .status-found {
+    background: linear-gradient(135deg, #2ecc71, #27ae60);
+    color: white;
+  }
+  
+  .status-lost {
+    background: linear-gradient(135deg, #ff6b6b, #ff4757);
+    color: white;
+  }
+  
+  /* Category Badge */
+  .category-badge {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+    padding: 5px 10px;
+    font-size: 0.8rem;
+    border-radius: 20px;
+    display: inline-flex;
+    align-items: center;
+  }
+  
+  /* Reward Badge */
+  .reward-badge {
+    background: linear-gradient(135deg, #ff9f43, #ff9f43);
+    color: white;
+    padding: 5px 10px;
+    font-size: 0.8rem;
+    border-radius: 20px;
+    display: inline-flex;
+    align-items: center;
+  }
+  
+  /* Action Buttons */
+  .btn-group .btn {
+    border-radius: 5px !important;
+    padding: 5px 10px;
+    margin: 0 2px;
+  }
+  
+  .btn-group .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  }
+  
+  /* Hover Effects */
+  .admin-items-table tbody tr:hover {
+    background-color: rgba(0, 123, 255, 0.05);
+    transform: translateX(5px);
+    transition: all 0.2s ease;
+  }
+  
+  /* Empty State */
+  .text-center i {
+    opacity: 0.5;
+  }
+  
+  /* Responsive */
+  @media (max-width: 768px) {
+    .admin-items-table {
+      font-size: 0.85rem;
+    }
+    
+    .admin-items-table td, .admin-items-table th {
+      padding: 8px 10px;
+    }
+    
+    .item-thumbnail {
+      width: 40px;
+      height: 40px;
+    }
+    
+    .user-avatar-sm {
+      width: 20px;
+      height: 20px;
+    }
+    
+    .btn-group .btn {
+      padding: 4px 8px;
+      font-size: 0.8rem;
+    }
+    
+    .status-badge, .category-badge, .reward-badge {
+      font-size: 0.7rem;
+      padding: 3px 8px;
+      min-width: 60px;
+    }
+    
+    .btn-group {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    
+    .btn-group .btn {
+      margin: 0;
+    }
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchInput');
+    const statusFilter = document.getElementById('statusFilter');
+    const categoryFilter = document.getElementById('categoryFilter');
+    const resetBtn = document.getElementById('resetFilters');
+    const itemsTableBody = document.getElementById('itemsTableBody');
+    const visibleCount = document.getElementById('visibleCount');
+    const rows = itemsTableBody.querySelectorAll('tr[data-status]');
+    const deleteForms = document.querySelectorAll('form[action*="/delete"]');
+    
+    // Filter function
+    function filterItems() {
+      const searchTerm = searchInput.value.toLowerCase();
+      const statusValue = statusFilter.value;
+      const categoryValue = categoryFilter.value;
+      
+      let visibleItems = 0;
+      
+      rows.forEach(row => {
+        const title = row.querySelector('.item-title').textContent.toLowerCase();
+        const location = row.querySelector('.text-muted.small')?.textContent.toLowerCase() || '';
+        const status = row.getAttribute('data-status');
+        const category = row.getAttribute('data-category');
+        
+        const matchesSearch = searchTerm === '' || 
+                            title.includes(searchTerm) || 
+                            location.includes(searchTerm);
+        const matchesStatus = statusValue === '' || status === statusValue;
+        const matchesCategory = categoryValue === '' || category === categoryValue;
+        
+        if (matchesSearch && matchesStatus && matchesCategory) {
+          row.style.display = '';
+          visibleItems++;
+        } else {
+          row.style.display = 'none';
+        }
+      });
+      
+      // Update count
+      visibleCount.textContent = visibleItems;
+      
+      // Show empty state if no items visible
+      const emptyRow = itemsTableBody.querySelector('tr:not([data-status])');
+      if (visibleItems === 0 && !emptyRow) {
+        itemsTableBody.innerHTML = `
+          <tr>
+            <td colspan="8" class="text-center py-4">
+              <i class="fas fa-search fa-2x text-muted mb-3"></i>
+              <p class="text-muted">No items match your filters</p>
+              <button id="clearAllFilters" class="btn btn-sm btn-outline-primary mt-2">
+                Clear all filters
+              </button>
+            </td>
+          </tr>
+        `;
+        
+        document.getElementById('clearAllFilters')?.addEventListener('click', function() {
+          searchInput.value = '';
+          statusFilter.value = '';
+          categoryFilter.value = '';
+          filterItems();
+        });
+      } else if (visibleItems > 0 && emptyRow) {
+        emptyRow.remove();
+      }
+    }
+    
+    // Event listeners for filtering
+    searchInput.addEventListener('input', filterItems);
+    statusFilter.addEventListener('change', filterItems);
+    categoryFilter.addEventListener('change', filterItems);
+    
+    // Reset filters
+    resetBtn.addEventListener('click', function() {
+      searchInput.value = '';
+      statusFilter.value = '';
+      categoryFilter.value = '';
+      filterItems();
+    });
+    
+    // Delete confirmation
+    deleteForms.forEach(form => {
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const itemTitle = this.closest('tr').querySelector('.item-title').textContent;
+        
+        if (confirm(`Are you sure you want to delete "${itemTitle}"?\n\nThis action cannot be undone.`)) {
+          this.submit();
+        }
+      });
+    });
+    
+    // Populate category filter with existing categories
+    function populateCategoryFilter() {
+      const categories = new Set();
+      rows.forEach(row => {
+        const category = row.getAttribute('data-category');
+        if (category && category !== '') {
+          categories.add(category);
+        }
+      });
+      
+      // Clear existing options except the first one
+      const existingCategories = Array.from(categoryFilter.querySelectorAll('option:not(:first-child)'));
+      existingCategories.forEach(opt => opt.remove());
+      
+      // Add categories alphabetically
+      Array.from(categories).sort().forEach(category => {
+        const option = document.createElement('option');
+        option.value = category;
+        option.textContent = category.charAt(0).toUpperCase() + category.slice(1);
+        categoryFilter.appendChild(option);
+      });
+    }
+    
+    // Initialize
+    populateCategoryFilter();
+    filterItems();
+  });
+</script>

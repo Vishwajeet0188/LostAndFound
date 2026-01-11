@@ -1,0 +1,162 @@
+<% layout("layouts/boilerplate") %>
+
+<div class="container mt-4">
+  <h2 class="mb-4">All Lost & Found Items</h2>
+
+  <!-- SEARCH INFO -->
+  <% if (query) { %>
+    <p class="text-muted mb-3">
+      Showing results for "<strong><%= query %></strong>"
+    </p>
+  <% } %>
+
+  <!-- NO ITEMS FOUND -->
+  <% if (items.length === 0) { %>
+    <div class="empty-state text-center">
+      <h4>No items found</h4>
+      <p>Try another keyword or browse all items.</p>
+      <a href="/items" class="btn btn-outline-primary">
+        Clear Search
+      </a>
+    </div>
+
+  <% } else { %>
+
+  <div class="row">
+
+    <% items.forEach(item => { %>
+
+      <div class="col-md-4 mb-4 d-flex justify-content-center">
+
+        <div class="item-card card">
+
+          
+
+          <!-- FOUND BADGE -->
+          <% if (item.status === "found") { %>
+            <span class="found-badge">FOUND</span>
+          <% } %>
+
+          <!-- IMAGE -->
+          <img 
+            src="<%= item.image %>" 
+            class="card-img-top item-img"
+            alt="Item Image"
+          >
+
+          <div class="card-body">
+
+            <!-- TITLE -->
+            <h5 class="card-title"><%= item.title %></h5>
+
+            <!-- DETAILS BUTTON -->
+            <a href="/items/<%= item._id %>" class="btn btn-primary btn-sm">
+              View Details
+            </a>
+
+
+            <!-- PAYMENT DETAILS (ONLY OWNER & ONLY AFTER APPROVAL) -->
+            <% if (
+                 item.reward &&
+                 item.reward.status === "approved" &&
+                 currentUser &&
+                 currentUser._id.equals(item.owner)
+               ) { %>
+
+              <p class="small mb-1">
+                UPI ID: <%= item.payment?.upiId %>
+              </p>
+
+              <a
+                href="upi://pay?pa=<%= item.payment?.upiId %>&am=<%= item.reward.amount %>&cu=INR"
+                class="btn btn-primary btn-sm w-100 mb-1"
+              >
+                Pay via UPI
+              </a>
+
+              <form action="/rewards/<%= item.reward._id %>/paid" method="POST">
+                <button class="btn btn-warning btn-sm w-100">
+                  Mark as Paid
+                </button>
+              </form>
+
+            <% } %>
+
+            <% if (
+                item.reward &&
+                item.reward.status === "requested" &&
+                currentUser &&
+                currentUser._id.equals(item.reward.finderId)
+              ) { %>
+
+              <form action="/rewards/<%= item.reward._id %>/approve" method="POST">
+                <button class="btn btn-success btn-sm w-100">
+                  Approve Reward
+                </button>
+              </form>
+
+            <% } %>
+
+
+
+          </div>
+
+        </div>
+
+      </div>
+
+    <% }) %>
+
+  </div>
+<% } %>
+</div>
+
+
+<style>
+  .item-card {
+  position: relative; /* Needed for badge positioning */
+}
+
+.found-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: #28a745;
+  color: white;
+  padding: 5px 12px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border-radius: 20px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  letter-spacing: 1px;
+}
+
+
+/* ================= REWARD SECTION ================= */
+
+.reward-status {
+  font-size: 0.9rem;
+  margin-top: 8px;
+  color: #333;
+}
+
+.reward-status strong {
+  text-transform: capitalize;
+}
+
+.reward-payment {
+  background: #f8f9fa;
+  border: 1px dashed #ced4da;
+  border-radius: 6px;
+  padding: 8px;
+  margin-top: 6px;
+}
+
+.reward-payment p {
+  font-size: 0.8rem;
+  margin-bottom: 6px;
+  word-break: break-all;
+}
+
+
+</style>

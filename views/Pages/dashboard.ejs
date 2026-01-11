@@ -1,0 +1,167 @@
+<% layout("layouts/boilerplate") %>
+
+<div class="container mt-4 mb-5">
+
+  <!-- Header -->
+  <div class="card shadow mb-4">
+    <div class="card-body text-center">
+      <i class="fas fa-user-circle fa-4x text-primary mb-3"></i>
+      <h3>Welcome back, <%= user.name %> 👋</h3>
+      <p class="text-muted mb-0"><%= user.email %></p>
+    </div>
+  </div>
+
+  <!-- Dashboard Actions -->
+  <div class="row">
+
+    <!-- Profile -->
+    <div class="col-md-4 mb-3">
+      <div class="card h-100 text-center shadow-sm">
+        <div class="card-body">
+          <i class="fas fa-user fa-3x text-info mb-3"></i>
+          <h5>Profile</h5>
+          <p class="text-muted">View your account details</p>
+          <a href="/profile" class="btn btn-outline-info">View Profile</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Items -->
+    <div class="col-md-4 mb-3">
+      <div class="card h-100 text-center shadow-sm">
+        <div class="card-body">
+          <i class="fas fa-box fa-3x text-success mb-3"></i>
+          <h5>My Items</h5>
+          <p class="text-muted">View & manage your items</p>
+          <a href="/items/my-items" class="btn btn-outline-success">View Items</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Logout -->
+    <div class="col-md-4 mb-3">
+      <div class="card h-100 text-center shadow-sm">
+        <div class="card-body">
+          <i class="fas fa-sign-out-alt fa-3x text-danger mb-3"></i>
+          <h5>Logout</h5>
+          <p class="text-muted">End your session safely</p>
+          <a href="/logout" class="btn btn-outline-danger btn-sm">Logout</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+
+<style>
+
+/* ===== DASHBOARD PAGE ===== */
+.dashboard-page {
+  animation: fadeIn 0.6s ease;
+}
+
+/* USER CARD */
+.user-card {
+  border-radius: 18px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+}
+
+.user-card .avatar {
+  width: 90px;
+  height: 90px;
+  margin: auto;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 42px;
+}
+
+/* STATS */
+.stat-card {
+  background: white;
+  border-radius: 16px;
+  padding: 25px;
+  text-align: center;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+  transition: transform 0.3s ease;
+}
+
+.stat-card i {
+  font-size: 32px;
+  color: #667eea;
+  margin-bottom: 10px;
+}
+
+.stat-card h4 {
+  font-weight: 700;
+}
+
+.stat-card.lost i {
+  color: #ff6b6b;
+}
+
+.stat-card.found i {
+  color: #2ecc71;
+}
+
+.stat-card:hover {
+  transform: translateY(-6px);
+}
+
+/* ACTION CARDS */
+.action-card {
+  background: white;
+  border-radius: 16px;
+  padding: 25px;
+  text-align: center;
+  height: 100%;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+  transition: all 0.3s ease;
+}
+
+.action-card i {
+  font-size: 34px;
+  margin-bottom: 12px;
+  color: #667eea;
+}
+
+.action-card:hover {
+  transform: translateY(-8px);
+}
+
+.action-card.danger i {
+  color: #dc3545;
+}
+
+/* ANIMATION */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+</style>
+
+
+<script>
+    document.querySelectorAll('.stat-card, .action-card').forEach(card => {
+  card.addEventListener('mouseenter', () => {
+    card.style.boxShadow = '0 20px 40px rgba(0,0,0,0.15)';
+  });
+  card.addEventListener('mouseleave', () => {
+    card.style.boxShadow = '0 10px 25px rgba(0,0,0,0.08)';
+  });
+});
+
+</script>

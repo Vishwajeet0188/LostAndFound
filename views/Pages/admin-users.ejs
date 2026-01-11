@@ -1,0 +1,224 @@
+<% layout("layouts/boilerplate") %>
+
+<div class="container-fluid mt-4">
+  <h1 class="mb-4">
+    <i class="fas fa-users me-2"></i>Manage Users
+  </h1>
+  
+  <a href="/admin/dashboard" class="btn btn-secondary mb-3">
+    <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
+  </a>
+  
+  <!-- Flash Messages -->
+  <% if (success_msg && success_msg.length > 0) { %>
+    <div class="alert alert-success alert-dismissible fade show">
+      <%= success_msg %>
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+  <% } %>
+  
+  <% if (error_msg && error_msg.length > 0) { %>
+    <div class="alert alert-danger alert-dismissible fade show">
+      <%= error_msg %>
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+  <% } %>
+  
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-hover admin-users-table">
+          <thead class="table-dark">
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Status</th>
+              <th>Joined</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% users.forEach(user => { %>
+              <tr>
+                <td>
+                  <div class="d-flex align-items-center">
+                    <% if (user.avatar) { %>
+                      <img src="<%= user.avatar %>" 
+                           class="rounded-circle me-2 user-avatar"
+                           alt="<%= user.name %>"
+                           onerror="this.style.display='none'">
+                    <% } %>
+                    <div>
+                      <strong><%= user.name %></strong>
+                      <% if (user._id.toString() === currentUser._id.toString()) { %>
+                        <span class="badge bg-info ms-1">You</span>
+                      <% } %>
+                    </div>
+                  </div>
+                </td>
+                <td><%= user.email %></td>
+                <td>
+                  <% if (user.role === 'admin') { %>
+                    <span class="badge bg-warning">
+                      <i class="fas fa-crown me-1"></i>Admin
+                    </span>
+                  <% } else { %>
+                    <span class="badge bg-primary">
+                      <i class="fas fa-user me-1"></i>User
+                    </span>
+                  <% } %>
+                </td>
+                <td>
+                  <% if (user.isActive) { %>
+                    <span class="badge bg-success">
+                      <i class="fas fa-check-circle me-1"></i>Active
+                    </span>
+                  <% } else { %>
+                    <span class="badge bg-secondary">
+                      <i class="fas fa-times-circle me-1"></i>Inactive
+                    </span>
+                  <% } %>
+                </td>
+                <td><%= new Date(user.createdAt).toLocaleDateString() %></td>
+                <td>
+                  <div class="btn-group" role="group">
+                    <!-- Toggle Status Button -->
+                    <form action="/admin/users/<%= user._id %>/toggle" method="POST" class="d-inline">
+                      <% if (user.isActive) { %>
+                        <button type="submit" class="btn btn-sm btn-warning" title="Deactivate User">
+                          <i class="fas fa-user-slash"></i>
+                        </button>
+                      <% } else { %>
+                        <button type="submit" class="btn btn-sm btn-success" title="Activate User">
+                          <i class="fas fa-user-check"></i>
+                        </button>
+                      <% } %>
+                    </form>
+                    
+                    <!-- Make Admin/User Button -->
+                    <% if (user._id.toString() !== currentUser._id.toString()) { %>
+                      <% if (user.role === 'user') { %>
+                        <form action="/admin/users/<%= user._id %>/make-admin" method="POST" class="d-inline ms-1">
+                          <button type="submit" class="btn btn-sm btn-warning" title="Make Admin">
+                            <i class="fas fa-user-shield"></i>
+                          </button>
+                        </form>
+                      <% } else { %>
+                        <form action="/admin/users/<%= user._id %>/make-user" method="POST" class="d-inline ms-1">
+                          <button type="submit" class="btn btn-sm btn-secondary" title="Make Regular User">
+                            <i class="fas fa-user"></i>
+                          </button>
+                        </form>
+                      <% } %>
+                    <% } else { %>
+                      <button class="btn btn-sm btn-outline-secondary ms-1" disabled title="Cannot modify own role">
+                        <i class="fas fa-user-lock"></i>
+                      </button>
+                    <% } %>
+                    
+                    <!-- Delete Button -->
+                    <% if (user._id.toString() !== currentUser._id.toString()) { %>
+                      <form action="/admin/users/<%= user._id %>/delete" method="POST" class="d-inline ms-1">
+                        <button type="submit" class="btn btn-sm btn-danger" title="Delete User">
+                          <i class="fas fa-trash"></i>
+                        </button>
+                      </form>
+                    <% } else { %>
+                      <button class="btn btn-sm btn-outline-danger ms-1" disabled title="Cannot delete yourself">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    <% } %>
+                  </div>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .admin-users-table th {
+    font-weight: 600;
+    padding: 12px 15px;
+  }
+  
+  .admin-users-table td {
+    padding: 12px 15px;
+    vertical-align: middle;
+  }
+  
+  .user-avatar {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border: 2px solid #dee2e6;
+  }
+  
+  .btn-group .btn {
+    padding: 5px 10px;
+    margin: 0 2px;
+  }
+  
+  @media (max-width: 768px) {
+    .user-avatar {
+      width: 30px;
+      height: 30px;
+    }
+    
+    .btn-group .btn {
+      padding: 4px 8px;
+      font-size: 0.8rem;
+    }
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const deleteForms = document.querySelectorAll('form[action*="/delete"]');
+    const makeAdminForms = document.querySelectorAll('form[action*="/make-admin"]');
+    const makeUserForms = document.querySelectorAll('form[action*="/make-user"]');
+    const toggleForms = document.querySelectorAll('form[action*="/toggle"]');
+    
+    deleteForms.forEach(form => {
+      form.addEventListener('submit', function(e) {
+        const userName = this.closest('tr').querySelector('strong').textContent;
+        if (!confirm('Are you sure you want to delete "' + userName + '"? This action cannot be undone.')) {
+          e.preventDefault();
+        }
+      });
+    });
+    
+    makeAdminForms.forEach(form => {
+      form.addEventListener('submit', function(e) {
+        const userName = this.closest('tr').querySelector('strong').textContent;
+        if (!confirm('Are you sure you want to make "' + userName + '" an admin?')) {
+          e.preventDefault();
+        }
+      });
+    });
+    
+    makeUserForms.forEach(form => {
+      form.addEventListener('submit', function(e) {
+        const userName = this.closest('tr').querySelector('strong').textContent;
+        if (!confirm('Are you sure you want to remove admin privileges from "' + userName + '"?')) {
+          e.preventDefault();
+        }
+      });
+    });
+    
+    toggleForms.forEach(form => {
+      form.addEventListener('submit', function(e) {
+        const userName = this.closest('tr').querySelector('strong').textContent;
+        const isActive = this.closest('tr').querySelector('.badge.bg-success') !== null;
+        const action = isActive ? 'deactivate' : 'activate';
+        if (!confirm('Are you sure you want to ' + action + ' "' + userName + '"?')) {
+          e.preventDefault();
+        }
+      });
+    });
+  });
+</script>

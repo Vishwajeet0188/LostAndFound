@@ -1,0 +1,142 @@
+<% layout("layouts/boilerplate") %>
+
+<div class="login-page">
+  <div class="container">
+    <div class="row justify-content-center align-items-center min-vh-100">
+      <div class="col-md-6 col-lg-4">
+
+        <div class="card shadow login-card">
+
+          <div class="card-body">
+            <div class="text-center mb-4">
+              <h3 class="fw-bold">Welcome Back</h3>
+              <p class="text-muted mb-0">Login to your Lost & Found account</p>
+            </div>
+
+            <% if (error && error.length > 0) { %>
+                <div class="alert alert-danger text-center">
+                    <%= error[0] %>
+                </div>
+            <% } %>
+
+
+            <form action="/login" method="POST">
+              <div class="mb-3">
+                <label class="form-label">Email</label>
+                <input
+                  type="email"
+                  name="email"
+                  class="form-control"
+                  placeholder="Enter your email"
+                  required
+                >
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Password</label>
+                <input
+                  type="password"
+                  name="password"
+                  class="form-control"
+                  placeholder="Enter your password"
+                  required
+                >
+              </div>
+
+              <div class="d-grid mt-4">
+                <button class="btn btn-primary btn-lg">
+                  Login
+                </button>
+              </div>
+            </form>
+
+            <hr class="my-4">
+
+            <div class="text-center">
+              <span class="text-muted">Don't have an account?</span><br>
+              <a href="/register" class="fw-semibold text-decoration-none">
+                Create account
+              </a>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<style>
+
+/* ================= LOGIN PAGE ================= */
+
+/* ================= LOGIN PAGE ================= */
+
+.login-page {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+}
+
+.login-card {
+  border-radius: 20px;
+  border: none;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.96);
+  animation: fadeUp 0.6s ease;
+}
+
+/* Title */
+.login-card h3 {
+  color: #2d2f48;
+}
+
+/* Inputs */
+.login-card .form-control {
+  border-radius: 12px;
+  padding: 12px 14px;
+  border: 1px solid #ddd;
+  transition: all 0.25s ease;
+}
+
+.login-card .form-control:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.25);
+}
+
+/* Button */
+.login-card .btn-primary {
+  border-radius: 30px;
+  padding: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  border: none;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.login-card .btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+}
+
+/* Divider */
+.login-card hr {
+  opacity: 0.2;
+}
+
+/* Animation */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+</style>

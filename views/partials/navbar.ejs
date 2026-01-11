@@ -1,0 +1,81 @@
+<nav class="navbar navbar-expand-lg sticky-top bg-white">
+
+  <div class="container-fluid">
+
+    <!-- LEFT: BRAND -->
+    <a class="navbar-brand nav-left" href="/">
+        <img src="/image/logo.png" alt="Lost & Found Logo" class="logo-img">
+    </a>
+
+
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+      data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+      aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+
+      <!-- CENTER: SEARCH BAR -->
+      <form class="d-flex search-center" role="search" action="/items" method="GET">
+        <input class="form-control me-2" type="search" name="search" placeholder="Search items..."   
+        value="<%= typeof query !== 'undefined' ? query : '' %>"
+ />
+        <button class="btn btn-outline-success" type="submit">Search</button>
+      </form>
+
+      <!-- RIGHT: NAV LINKS -->
+      <ul class="navbar-nav nav-right mb-2 mb-lg-0">
+
+          <li class="nav-item">
+            <a class="nav-link active" href="/">Home</a>
+          </li>
+
+          <!-- DROPDOWN -->
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+              Service
+            </a>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="/items">View All Items</a></li>
+              <li><a class="dropdown-item" href="/items/create">Register Lost Item</a></li>
+            </ul>
+          </li>
+
+           <% if (!user) { %>
+          <!-- NOT LOGGED IN -->
+          <li class="nav-item">
+            <a class="nav-link" href="/login">Login</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/register">SignUp</a>
+          </li>
+        <% } else { %>
+          <!-- LOGGED IN - SHOW ADMIN BUTTON FIRST -->
+          <% if (user.role === 'admin') { %>
+            <li class="nav-item">
+              <a class="nav-link admin-nav-btn" href="/admin/dashboard">
+                <i class="fas fa-crown me-1"></i> 
+                <span class="admin-text">Admin</span>
+                <span class="badge bg-warning ms-1">ADMIN</span>
+              </a>
+            </li>
+          <% } %>
+          
+          <!-- REGULAR LOGGED IN LINKS -->
+          <li class="nav-item">
+            <a class="nav-link" href="/dashboard">Dashboard</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-danger fw-semibold" href="/logout">Logout</a>
+          </li>
+        <% } %>
+
+      </ul>
+
+
+    </div>
+  </div>
+</nav>
+
+

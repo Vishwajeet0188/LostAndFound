@@ -1,0 +1,155 @@
+<% layout("layouts/boilerplate") %>
+
+<style>
+  /* 🔵 BEAUTIFUL GRADIENT BACKGROUND */
+  body {
+    background: linear-gradient(135deg, #dbeafe, #ffffff, #e0f2fe);
+    background-size: 300% 300%;
+    animation: gradientMove 12s ease infinite;
+  }
+
+  @keyframes gradientMove {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  /* FORM CARD */
+  .form-container {
+    max-width: 750px;
+    margin: 60px auto;
+    padding: 40px;
+    border-radius: 22px;
+    background: #ffffffcc;
+    backdrop-filter: blur(6px);
+    box-shadow: 0 18px 50px rgba(0,0,0,0.15);
+  }
+
+  .form-title {
+    font-size: 2rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 25px;
+    color: #0d6efd;
+  }
+
+  .form-label { font-weight: 600; }
+
+  .form-control,
+  .form-select,
+  textarea {
+    width: 100%;
+    border-radius: 12px !important;
+    padding: 12px !important;
+    background: #f9f9f9;
+    border: 1px solid #ddd !important;
+    transition: 0.2s;
+  }
+
+  .form-control:focus,
+  .form-select:focus,
+  textarea:focus {
+    border-color: #0d6efd;
+    background: #fff;
+    box-shadow: 0px 0px 8px rgba(13,110,253,0.25);
+  }
+
+  textarea {
+    height: 140px;
+  }
+
+  .btn-primary {
+    padding: 12px;
+    border-radius: 12px;
+    font-size: 1.15rem;
+    font-weight: 600;
+    border: none;
+    background: linear-gradient(90deg, #0d6efd, #4f8bff);
+    transition: 0.25s;
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 22px rgba(13,110,253,0.35);
+  }
+</style>
+
+<div class="form-container">
+
+  <div class="form-title">Lost Item Report Form</div>
+
+  <form method="POST" action="/items" enctype="multipart/form-data" class="row g-3">
+
+    <!-- Item Name -->
+    <div class="col-12">
+      <label class="form-label">Enter Item Name</label>
+      <input type="text" name="title" placeholder="Enter Item" class="form-control" required>
+    </div>
+
+    <!-- Description -->
+    <div class="col-12">
+      <label class="form-label">Description</label>
+      <textarea name="description" class="form-control" placeholder="Write about your item..."></textarea>
+    </div>
+
+    <!-- Location -->
+    <div class="col-12">
+      <label class="form-label">Where You Last Spotted Your Item</label>
+      <input type="text" name="location" placeholder="Block, room, area..." class="form-control">
+    </div>
+
+
+    <!-- Category -->
+    <div class="col-12">
+      <label class="form-label">Category</label>
+      <select name="category" class="form-select">
+        <option disabled selected>Choose...</option>
+        <option>Electronics</option>
+        <option>Cosmetic</option>
+        <option>Books</option>
+        <option>Documents</option>
+        <option>Accessories</option>
+        <option>Any Other</option>
+      </select>
+    </div>
+
+    <!-- Reward -->
+    <div class="col-12">
+      <label class="form-label">Reward (optional)</label>
+      <input type="number" name="reward" placeholder="Enter Reward Amount" class="form-control">
+    </div>
+
+    <!-- IMAGE UPLOAD -->
+    <div class="col-12">
+      <label class="form-label">Upload Item Image (optional)</label>
+      <input
+        type="file"
+        name="image"
+        accept="image/*"
+        class="form-control">
+    </div>
+
+        <!-- CONTACT DETAILS -->
+    <div class="col-12">
+      <label class="form-label">Your Name</label>
+      <input type="text" name="contactName" placeholder="Enter your name" class="form-control">
+    </div>
+
+    <div class="col-12">
+      <label class="form-label">Phone Number</label>
+      <input type="text" name="contactPhone" placeholder="Enter your phone / WhatsApp" class="form-control">
+    </div>
+
+    <div class="col-12">
+      <label class="form-label">Email (optional)</label>
+      <input type="email" name="contactEmail" placeholder="Enter your email" class="form-control">
+    </div>
+
+
+    <!-- Submit -->
+    <div class="col-12">
+      <button type="submit" class="btn btn-primary w-100">Submit</button>
+    </div>
+
+  </form>
+</div>
