@@ -97,7 +97,8 @@ passport.use(
         return done(null, false, { message: "No account found. Please register first." });
       }
 
-      const isMatch = await bcrypt.compare(password, user.password);
+      const isMatch = bcrypt.compareSync(password, user.password);
+
       if (!isMatch) {
         return done(null, false, { message: "Incorrect password." });
       }
