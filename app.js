@@ -55,22 +55,35 @@ app.use(fileUpload({
 //   })
 // );
 
+const MongoStore = require("connect-mongo");
+
+// SESSION STORE
+const store = new MongoStore({
+  url: process.env.ATLAS_DB,
+  ttl: 24 * 60 * 60 // 1 day
+});
+
+store.on("error", (err) => {
+  console.log("SESSION STORE ERROR:", err);
+});
+
+// SESSION MIDDLEWARE
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
-    store: MongoStore.create({
-      mongoUrl: process.env.ATLAS_DB,
-      ttl: 24 * 60 * 60 
-    }),
-    cookie: { 
+    store: store,
+    cookie: {
       maxAge: 1000 * 60 * 60 * 24,
       httpOnly: true,
-      secure: false 
+      secure: true,         // REQUIRED for Vercel HTTPS
+      sameSite: "none"      // REQUIRED with secure cookies
     }
   })
 );
+
+
 
 // FLASH 
 app.use(flash());
