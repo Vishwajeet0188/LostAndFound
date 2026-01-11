@@ -21,7 +21,7 @@ const paymentRoutes = require("./route/payments");
 const profileRoutes = require("./route/profile");
 const adminRoutes = require("./route/admin");
 
-// VIEW ENGINE 
+// VIEW ENGINE
 app.engine("ejs", ejsMate);
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
