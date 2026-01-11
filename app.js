@@ -5,7 +5,7 @@ const app = express();
 const ejsMate = require("ejs-mate");
 const path = require("path");
 const session = require("express-session");
-const MongoStore = require("connect-mongo");
+const MongoStore = require("connect-mongo"); 
 const flash = require("connect-flash");
 const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
@@ -34,6 +34,9 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
+
+// FILE UPLOAAD : 
+
 const fileUpload = require('express-fileupload');
 
 app.use(fileUpload({
@@ -45,47 +48,39 @@ app.use(fileUpload({
 }));
 
 
-// SESSION 
-// app.use(
-//   session({
-//     secret: process.env.SESSION_SECRET,
-//     resave: false,
-//     saveUninitialized: false,
-//     cookie: { maxAge: 1000 * 60 * 60 * 24 }
-//   })
-// );
-
-
-
-/* ---- SESSION ---- */
+/* ---- SESSION CONFIGURATION FOR connect-mongo@5.1.0 ---- */
 const store = MongoStore.create({
-  mongoUrl: process.env.ATLAS_DB,     // Atlas database URL
-  secret: process.env.SESSION_SECRET,
-  touchAfter: 24 * 3600,  
+  mongoUrl: process.env.ATLAS_DB,
   crypto: {
-        secret: process.env.SESSION_SECRET // For encrypted sessions
-    }
+    secret: process.env.SESSION_SECRET || 'fallback-secret'
+  },
+  touchAfter: 24 * 3600,
+  collectionName: 'sessions'
 });
 
 store.on("error", (err) => {
-  console.log("SESSION STORE ERROR:", err);  // ADD THIS TO SEE EXACT ERROR
+  console.log("SESSION STORE ERROR:", err);
 });
 
 const sessionOptions = {
   store: store,
-  secret: process.env.SESSION_SECRET,
+  name: 'sessionId',
+  secret: process.env.SESSION_SECRET || 'your-secret-key',
   resave: false,
-  saveUninitialized: true,
+  saveUninitialized: false, // Changed to false for better security
+  rolling: true, // Reset cookie maxAge on every request
   cookie: {
     expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
     maxAge: 7 * 24 * 60 * 60 * 1000,
-    httpOnly: true
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production', // HTTPS only in production
+    sameSite: 'lax'
   }
 };
+// CRITICAL: Apply session middleware
+app.use(session(sessionOptions));
 
-
-
-// FLASH 
+// FLASH - Must come AFTER session middleware
 app.use(flash());
 
 // PASSPORT - INITIALIZE
@@ -136,36 +131,36 @@ app.use((req, res, next) => {
   res.locals.error_msg = req.flash("error_msg");
   res.locals.error = req.flash("error");
   
-  // User info - IMPORTANT: Add isAuthenticated method
+  // User info
   res.locals.currentUser = req.user;
   res.locals.user = req.user || null;
   
-  // Add isAuthenticated method to req if missing
-  if (!req.isAuthenticated) {
-    req.isAuthenticated = function() {
-      return !!req.user;
-    };
-  }
-  
-  // Add logout method if missing
-  if (!req.logout && passport.logout) {
-    req.logout = passport.logout;
-  }
+  // For template convenience
+  res.locals.isAuthenticated = req.isAuthenticated ? req.isAuthenticated() : false;
   
   next();
 });
-
-
 
 // METHOD OVERRIDE 
 const methodOverride = require("method-override");
 app.use(methodOverride("_method"));
 
-// DATABASE 
+// DATABASE - Must come AFTER session setup
 const connectDB = require("./config/db");
 connectDB();
 
-// ROUTES - REGISTER AFTER ALL MIDDLEWARE
+// Debug route to check session
+app.get("/debug-session", (req, res) => {
+  res.json({
+    sessionId: req.sessionID,
+    session: req.session,
+    user: req.user,
+    isAuthenticated: req.isAuthenticated(),
+    sessionStore: req.sessionStore ? 'Configured' : 'Not configured'
+  });
+});
+
+// ROUTES
 app.use("/", authRoutes);
 app.use("/items", itemRoutes);
 app.use("/profile", profileRoutes);
@@ -192,19 +187,23 @@ app.get("/", async (req, res) => {
   }
 });
 
-// DEBUG ROUTE - Add this to test
-app.get("/debug-auth", (req, res) => {
-  res.json({
-    reqUser: req.user,
-    isAuthenticated: req.isAuthenticated ? req.isAuthenticated() : "no method",
-    session: req.session,
-    passport: req.session?.passport,
-    localsUser: res.locals.user,
-    localsCurrentUser: res.locals.currentUser
+// 404 Handler
+app.use((req, res) => {
+  res.status(404).render("pages/404", { user: req.user });
+});
+
+// Error handler
+app.use((err, req, res, next) => {
+  console.error("❌ Server Error:", err.stack);
+  res.status(500).render("pages/500", { 
+    error: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong!',
+    user: req.user 
   });
 });
 
+ 
 // SERVER 
 app.listen(8080, () => {
   console.log("Server running on port 8080");
 });
+
