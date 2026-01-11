@@ -9,7 +9,6 @@ const flash = require("connect-flash");
 const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
 const bcrypt = require("bcryptjs");
-const MongoStore = require("connect-mongo");
 
 const Item = require("./models/item");
 const User = require("./models/user");          
