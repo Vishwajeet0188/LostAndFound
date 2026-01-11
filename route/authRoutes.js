@@ -14,7 +14,7 @@ router.get("/login", (req, res) => {
   if (req.isAuthenticated()) {
     return res.redirect("/dashboard");
   }
-  res.render("Pages/login", { title: "Login" });
+  res.render("pages/login", { title: "Login" });
 });
 
 //  LOGIN HANDLE 
@@ -45,7 +45,7 @@ router.get("/register", (req, res) => {
   if (req.isAuthenticated()) {
     return res.redirect("/dashboard");
   }
-  res.render("Pages/signup", { title: "Register" });
+  res.render("pages/signup", { title: "Register" });
 });
 
 //  REGISTER HANDLE 
@@ -105,7 +105,7 @@ router.get("/dashboard", (req, res) => {
     return res.redirect("/login");
   }
 
-  res.render("Pages/dashboard", {
+  res.render("pages/dashboard", {
     title: "Dashboard",
     user: req.user
   });
