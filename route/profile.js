@@ -4,7 +4,7 @@ const router = express.Router();
 const User = require("../models/user");
 const Item = require("../models/item");
 const { isLoggedIn } = require("../middleware/auth");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const cloudinary = require("../config/cloudinary");
 
 // GET Profile Page
