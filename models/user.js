@@ -14,11 +14,12 @@ const userSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 // hash password before save
-userSchema.pre("save", function(next) {
-    if (!this.isModified("password")) return next();
-    this.password = bcrypt.hashSync(this.password, 10);
-    next();
+userSchema.pre("save", async function () {
+  if (!this.isModified("password")) return;
+
+  this.password = await bcrypt.hash(this.password, 12);
 });
+
 
 // compare passwords
 userSchema.methods.comparePassword = function(candidatePassword) {

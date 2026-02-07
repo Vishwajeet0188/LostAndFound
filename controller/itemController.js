@@ -1,4 +1,6 @@
 const Item = require("../models/item");
+const { generateAIData } = require("./aiHelper");
+
 
 
 // ================= ALL ITEMS + SEARCH =================
@@ -35,15 +37,22 @@ exports.getAllItems = async (req, res) => {
   }
 };
 
+// create item
 
-
-// ================= CREATE ITEM =================
 exports.createItem = async (req, res) => {
   try {
+    // 🤖 AI processing
+    const textForAI = req.body.description || req.body.title;
+    const aiData = await generateAIData(textForAI);
+
     const item = new Item({
       ...req.body,
       owner: req.user._id,
 
+      // 🤖 AI-generated fields
+      aiDescription: aiData.description,
+      aiCategory: aiData.category,
+      aiKeywords: aiData.keywords,
 
       image: req.file ? req.file.path : null
     });
@@ -61,7 +70,8 @@ exports.createItem = async (req, res) => {
 };
 
 
-// ================= SINGLE ITEM =================
+
+
 // ================= SINGLE ITEM =================
 exports.getElementById = async (req, res) => {
   try {

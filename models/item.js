@@ -6,6 +6,11 @@ const itemSchema = new mongoose.Schema(
     {
         title: String,
         description: String,
+
+        aiDescription: String,
+        aiCategory: String,
+        aiKeywords: [String],
+
         category: String,
         location: String,
         reward: Number,

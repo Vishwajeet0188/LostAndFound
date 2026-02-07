@@ -49,36 +49,52 @@ app.use(fileUpload({
 
 
 /* ---- SESSION CONFIGURATION FOR connect-mongo@5.1.0 ---- */
-const store = MongoStore.create({
-  mongoUrl: process.env.ATLAS_DB,
-  crypto: {
-    secret: process.env.SESSION_SECRET || 'fallback-secret'
-  },
-  touchAfter: 24 * 3600,
-  collectionName: 'sessions'
-});
 
-store.on("error", (err) => {
-  console.log("SESSION STORE ERROR:", err);
-});
+// const store = MongoStore.create({
+//   mongoUrl: process.env.ATLAS_DB,
+//   crypto: {
+//     secret: process.env.SESSION_SECRET || 'fallback-secret'
+//   },
+//   touchAfter: 24 * 3600,
+//   collectionName: 'sessions'
+// });
 
-const sessionOptions = {
-  store: store,
-  name: 'sessionId',
-  secret: process.env.SESSION_SECRET || 'your-secret-key',
-  resave: false,
-  saveUninitialized: false, // Changed to false for better security
-  rolling: true, // Reset cookie maxAge on every request
-  cookie: {
-    expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
-    maxAge: 7 * 24 * 60 * 60 * 1000,
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production', // HTTPS only in production
-    sameSite: 'lax'
-  }
-};
+// store.on("error", (err) => {
+//   console.log("SESSION STORE ERROR:", err);
+// });
+
+// const sessionOptions = {
+//   store: store,
+//   name: 'sessionId',
+//   secret: process.env.SESSION_SECRET || 'your-secret-key',
+//   resave: false,
+//   saveUninitialized: false, // Changed to false for better security
+//   rolling: true, // Reset cookie maxAge on every request
+//   cookie: {
+//     expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
+//     maxAge: 7 * 24 * 60 * 60 * 1000,
+//     httpOnly: true,
+//     secure: process.env.NODE_ENV === 'production', // HTTPS only in production
+//     sameSite: 'lax'
+//   }
+// };
+
+app.use(
+  session({
+    name: "sessionId",
+    secret: process.env.SESSION_SECRET || "lostfound-secret",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      httpOnly: true
+    }
+  })
+);
+
+
 // CRITICAL: Apply session middleware
-app.use(session(sessionOptions));
+// app.use(session(sessionOptions));
 
 // FLASH - Must come AFTER session middleware
 app.use(flash());
@@ -203,4 +219,3 @@ app.use((err, req, res, next) => {
 app.listen(8080, () => {
   console.log("Server running on port 8080");
 });
-

@@ -77,13 +77,13 @@ router.post("/register", async (req, res) => {
     }
 
     // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
+    // const hashedPassword = await bcrypt.hash(password, 10);
 
     // Save user to DB
     await User.create({
       name,
       email,
-      password: hashedPassword
+      password
     });
 
     req.flash("success_msg", "Account created successfully 🎉");

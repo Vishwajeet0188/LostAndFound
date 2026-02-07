@@ -16,11 +16,12 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "axios": "^1.13.4",
     "bcryptjs": "^3.0.3",
     "cloudinary": "^1.41.3",
     "connect-flash": "^0.1.1",
     "connect-mongo": "^5.1.0",
-    "dotenv": "^17.2.3",
+    "dotenv": "^17.2.4",
     "ejs": "^3.1.10",
     "ejs-mate": "^4.0.0",
     "express": "^5.2.1",
@@ -32,6 +33,7 @@
     "multer": "^2.0.2",
     "multer-storage-cloudinary": "^4.0.0",
     "nodemon": "^3.1.11",
+    "openai": "^6.18.0",
     "passport": "^0.7.0",
     "passport-local": "^1.0.0",
     "session": "^0.1.0"
