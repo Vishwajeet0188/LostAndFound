@@ -69,7 +69,7 @@ router.post("/register", async (req, res) => {
       return res.redirect("/register");
     }
 
-    // ✅ FIXED: DB CHECK
+    //  FIXED: DB CHECK
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       req.flash("error_msg", "Email already registered");
@@ -79,15 +79,17 @@ router.post("/register", async (req, res) => {
     // Hash password
     // const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Save user to DB
-    await User.create({
-      name,
-      email,
-      password
-    });
+    const user = await User.create({ name, email, password });
 
-    req.flash("success_msg", "Account created successfully 🎉");
-    res.redirect("/");
+  req.login(user, err => {
+    if (err) {
+      req.flash("success_msg", "Account created. Please login.");
+      return res.redirect("/login");
+    }
+    req.flash("success_msg", "Welcome! Account created 🎉");
+    res.redirect("/dashboard");
+  });
+
 
   } catch (err) {
     console.error(err);
