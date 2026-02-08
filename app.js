@@ -60,8 +60,8 @@ app.use(
     resave: false,
     saveUninitialized: false,
     store: MongoStore.create({
-      mongoUrl: process.env.ATLAS_DB,
-      touchAfter: 24 * 3600
+      mongoUrl: process.env.ATLAS_DB,  // ✅ Simple connection string
+      // Remove other options for mongoose 6+
     }),
     cookie: {
       httpOnly: true,
