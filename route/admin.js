@@ -26,12 +26,12 @@ router.get('/dashboard', isLoggedIn, isAdmin, async (req, res) => {
       { $group: { _id: '$status', count: { $sum: 1 } } }
     ]);
     
-    // Calculate total rewards
+    // Calculate total rewards - FIX: Check if result exists
     const rewardResult = await Item.aggregate([
       { $match: { reward: { $gt: 0 } } },
       { $group: { _id: null, total: { $sum: '$reward' } } }
     ]);
-    const totalRewards = rewardResult[0]?.total || 0;
+    const totalRewards = rewardResult.length > 0 ? rewardResult[0].total : 0;
     
     res.render('pages/admin', {
       stats: {
@@ -46,11 +46,12 @@ router.get('/dashboard', isLoggedIn, isAdmin, async (req, res) => {
       recentUsers,
       categories,
       statusStats,
-      currentUser: req.user // Add this line
+      currentUser: req.user
     });
   } catch (error) {
     console.error(error);
-    res.status(500).render('error', { error: 'Server Error' });
+    req.flash('error_msg', 'Server Error'); // ADDED: Flash message
+    res.redirect('/admin/dashboard');
   }
 });
 
@@ -60,7 +61,7 @@ router.get('/users', isLoggedIn, isAdmin, async (req, res) => {
     const users = await User.find().sort({ createdAt: -1 });
     res.render('pages/admin-users', { 
       users,
-      currentUser: req.user // Pass current user to template
+      currentUser: req.user
     });
   } catch (error) {
     console.error(error);
@@ -79,7 +80,7 @@ router.get('/items', isLoggedIn, isAdmin, async (req, res) => {
     
     res.render('pages/admin-items', { 
       items,
-      currentUser: req.user // Pass current user if needed
+      currentUser: req.user
     });
   } catch (error) {
     console.error(error);

@@ -10,14 +10,14 @@
   </a>
   
   <!-- Flash Messages -->
-  <% if (success_msg && success_msg.length > 0) { %>
+  <% if (success_msg) { %>
     <div class="alert alert-success alert-dismissible fade show">
       <%= success_msg %>
       <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
   <% } %>
   
-  <% if (error_msg && error_msg.length > 0) { %>
+  <% if (error_msg) { %>
     <div class="alert alert-danger alert-dismissible fade show">
       <%= error_msg %>
       <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
@@ -43,11 +43,15 @@
               <tr>
                 <td>
                   <div class="d-flex align-items-center">
-                    <% if (user.avatar) { %>
-                      <img src="<%= user.avatar %>" 
+                    <% if (user.profilePicture) { %>
+                      <img src="<%= user.profilePicture %>" 
                            class="rounded-circle me-2 user-avatar"
                            alt="<%= user.name %>"
                            onerror="this.style.display='none'">
+                    <% } else { %>
+                      <div class="rounded-circle me-2 user-avatar bg-secondary d-flex align-items-center justify-content-center">
+                        <i class="fas fa-user text-white"></i>
+                      </div>
                     <% } %>
                     <div>
                       <strong><%= user.name %></strong>
@@ -84,7 +88,7 @@
                 <td>
                   <div class="btn-group" role="group">
                     <!-- Toggle Status Button -->
-                    <form action="/admin/users/<%= user._id %>/toggle" method="POST" class="d-inline">
+                    <form action="/admin/users/<%= user._id %>/toggle-status" method="POST" class="d-inline">
                       <% if (user.isActive) { %>
                         <button type="submit" class="btn btn-sm btn-warning" title="Deactivate User">
                           <i class="fas fa-user-slash"></i>
@@ -120,7 +124,7 @@
                     <!-- Delete Button -->
                     <% if (user._id.toString() !== currentUser._id.toString()) { %>
                       <form action="/admin/users/<%= user._id %>/delete" method="POST" class="d-inline ms-1">
-                        <button type="submit" class="btn btn-sm btn-danger" title="Delete User">
+                        <button type="submit" class="btn btn-sm btn-danger delete-user-btn" title="Delete User" data-username="<%= user.name %>">
                           <i class="fas fa-trash"></i>
                         </button>
                       </form>
@@ -133,6 +137,15 @@
                 </td>
               </tr>
             <% }) %>
+            
+            <% if (users.length === 0) { %>
+              <tr>
+                <td colspan="6" class="text-center py-4">
+                  <i class="fas fa-users fa-2x text-muted mb-3"></i>
+                  <p class="text-muted">No users found</p>
+                </td>
+              </tr>
+            <% } %>
           </tbody>
         </table>
       </div>
@@ -158,9 +171,21 @@
     border: 2px solid #dee2e6;
   }
   
+  .user-avatar.bg-secondary {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+  }
+  
   .btn-group .btn {
     padding: 5px 10px;
     margin: 0 2px;
+  }
+  
+  .btn-group .btn:hover {
+    transform: translateY(-2px);
+    transition: all 0.2s ease;
   }
   
   @media (max-width: 768px) {
@@ -173,50 +198,67 @@
       padding: 4px 8px;
       font-size: 0.8rem;
     }
+    
+    .btn-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 3px;
+    }
   }
 </style>
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    const deleteForms = document.querySelectorAll('form[action*="/delete"]');
-    const makeAdminForms = document.querySelectorAll('form[action*="/make-admin"]');
-    const makeUserForms = document.querySelectorAll('form[action*="/make-user"]');
-    const toggleForms = document.querySelectorAll('form[action*="/toggle"]');
-    
-    deleteForms.forEach(form => {
-      form.addEventListener('submit', function(e) {
-        const userName = this.closest('tr').querySelector('strong').textContent;
-        if (!confirm('Are you sure you want to delete "' + userName + '"? This action cannot be undone.')) {
-          e.preventDefault();
+    // Delete confirmation
+    document.querySelectorAll('.delete-user-btn').forEach(button => {
+      button.addEventListener('click', function(e) {
+        e.preventDefault();
+        const userName = this.getAttribute('data-username');
+        const form = this.closest('form');
+        
+        if (confirm(`Are you sure you want to delete "${userName}"?\n\nThis action cannot be undone.`)) {
+          form.submit();
         }
       });
     });
     
-    makeAdminForms.forEach(form => {
-      form.addEventListener('submit', function(e) {
+    // Toggle status confirmation
+    document.querySelectorAll('form[action*="/toggle-status"] button[type="submit"]').forEach(button => {
+      button.addEventListener('click', function(e) {
+        e.preventDefault();
         const userName = this.closest('tr').querySelector('strong').textContent;
-        if (!confirm('Are you sure you want to make "' + userName + '" an admin?')) {
-          e.preventDefault();
-        }
-      });
-    });
-    
-    makeUserForms.forEach(form => {
-      form.addEventListener('submit', function(e) {
-        const userName = this.closest('tr').querySelector('strong').textContent;
-        if (!confirm('Are you sure you want to remove admin privileges from "' + userName + '"?')) {
-          e.preventDefault();
-        }
-      });
-    });
-    
-    toggleForms.forEach(form => {
-      form.addEventListener('submit', function(e) {
-        const userName = this.closest('tr').querySelector('strong').textContent;
-        const isActive = this.closest('tr').querySelector('.badge.bg-success') !== null;
+        const isActive = this.classList.contains('btn-warning'); // Deactivate button is warning color
         const action = isActive ? 'deactivate' : 'activate';
-        if (!confirm('Are you sure you want to ' + action + ' "' + userName + '"?')) {
-          e.preventDefault();
+        const form = this.closest('form');
+        
+        if (confirm(`Are you sure you want to ${action} "${userName}"?`)) {
+          form.submit();
+        }
+      });
+    });
+    
+    // Make admin confirmation
+    document.querySelectorAll('form[action*="/make-admin"] button[type="submit"]').forEach(button => {
+      button.addEventListener('click', function(e) {
+        e.preventDefault();
+        const userName = this.closest('tr').querySelector('strong').textContent;
+        const form = this.closest('form');
+        
+        if (confirm(`Make "${userName}" an admin?\n\nThis user will have full administrative privileges.`)) {
+          form.submit();
+        }
+      });
+    });
+    
+    // Make user confirmation
+    document.querySelectorAll('form[action*="/make-user"] button[type="submit"]').forEach(button => {
+      button.addEventListener('click', function(e) {
+        e.preventDefault();
+        const userName = this.closest('tr').querySelector('strong').textContent;
+        const form = this.closest('form');
+        
+        if (confirm(`Remove admin privileges from "${userName}"?\n\nThis user will become a regular user.`)) {
+          form.submit();
         }
       });
     });

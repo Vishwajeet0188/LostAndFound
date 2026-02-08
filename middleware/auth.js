@@ -1,30 +1,22 @@
-// middleware/auth.js - UPDATED
+// middleware/auth.js - Authentication Middleware
 module.exports = {
   isLoggedIn: (req, res, next) => {
-    console.log("Auth check - req.user:", req.user);
-    console.log("Auth check - req.isAuthenticated:", req.isAuthenticated ? "exists" : "missing");
-    
-    // Method 1: If isAuthenticated method exists
+    // Method 1: Check passport's isAuthenticated method
     if (req.isAuthenticated && req.isAuthenticated()) {
-      console.log("✅ User authenticated via isAuthenticated()");
       return next();
     }
     
     // Method 2: Check req.user directly
     if (req.user) {
-      console.log("✅ User authenticated via req.user");
       return next();
     }
     
     // Method 3: Check session
     if (req.session && req.session.passport && req.session.passport.user) {
-      console.log("✅ User authenticated via session");
       return next();
     }
     
-    console.log("❌ User NOT authenticated");
-    
-    // Use correct flash key
+    // If all checks fail, user is not authenticated
     req.flash("error_msg", "Please login to continue");
     res.redirect("/login");
   }

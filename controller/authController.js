@@ -1,6 +1,6 @@
 const bcrypt = require('bcryptjs');
 
-// In-memory user storage (replace with database)
+// In-memory user storage (replace with database in production)
 let users = [];
 
 const authController = {
@@ -13,8 +13,6 @@ const authController = {
             title: 'Login'
         });
     },
-
-    // POST /login (handled by passport directly in routes)
 
     // GET /register
     getRegister: (req, res) => {

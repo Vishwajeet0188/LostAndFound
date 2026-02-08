@@ -4,7 +4,7 @@ const express = require("express");
 const app = express();
 const ejsMate = require("ejs-mate");
 const path = require("path");
-
+const bodyParser = require("body-parser");
 const session = require("express-session");
 const MongoStore = require("connect-mongo");
 const flash = require("connect-flash");
@@ -12,19 +12,20 @@ const flash = require("connect-flash");
 const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
 const bcrypt = require("bcryptjs");
-
 const methodOverride = require("method-override");
-const fileUpload = require("express-fileupload");
 
+// Import models
 const Item = require("./models/item");
 const User = require("./models/user");
 
+// Import routes - NO DUPLICATES
 const authRoutes = require("./route/authRoutes");
 const itemRoutes = require("./route/itemRoute");
 const rewardRoutes = require("./route/rewards");
 const paymentRoutes = require("./route/payments");
 const profileRoutes = require("./route/profile");
 const adminRoutes = require("./route/admin");
+const aiRoutes = require('./route/aiRoute'); // Only one import
 
 const connectDB = require("./config/db");
 
@@ -33,36 +34,21 @@ const connectDB = require("./config/db");
 ========================= */
 app.set("trust proxy", 1);
 
-/* =========================
-   VIEW ENGINE
-========================= */
+/*  VIEW ENGINE */
 app.engine("ejs", ejsMate);
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
 /* =========================
+   BODY PARSER
+========================= */
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+
+/* =========================
    STATIC FILES
 ========================= */
 app.use(express.static(path.join(__dirname, "public")));
-
-/* =========================
-   BODY PARSER
-========================= */
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
-
-/* =========================
-   FILE UPLOAD
-========================= */
-app.use(
-  fileUpload({
-    useTempFiles: true,
-    tempFileDir: "/tmp/",
-    createParentPath: true,
-    limits: { fileSize: 2 * 1024 * 1024 },
-    abortOnLimit: true
-  })
-);
 
 /* =========================
    SESSION (FIXED)
@@ -79,7 +65,7 @@ app.use(
     }),
     cookie: {
       httpOnly: true,
-      secure: true,          // Render = HTTPS
+      secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       maxAge: 7 * 24 * 60 * 60 * 1000
     }
@@ -131,7 +117,12 @@ app.use((req, res, next) => {
   res.locals.success_msg = req.flash("success_msg");
   res.locals.error_msg = req.flash("error_msg");
   res.locals.error = req.flash("error");
-  res.locals.currentUser = req.user || null;
+  
+  // Set both variables for compatibility
+  const userObj = req.user || null;
+  res.locals.currentUser = userObj;
+  res.locals.user = userObj;
+  
   res.locals.isAuthenticated = req.isAuthenticated();
   next();
 });
@@ -141,9 +132,7 @@ app.use((req, res, next) => {
 ========================= */
 app.use(methodOverride("_method"));
 
-/* =========================
-   DATABASE
-========================= */
+// DATABASE
 connectDB();
 
 /* =========================
@@ -159,7 +148,7 @@ app.get("/debug-session", (req, res) => {
 });
 
 /* =========================
-   ROUTES
+   ROUTES - NO DUPLICATES
 ========================= */
 app.use("/", authRoutes);
 app.use("/items", itemRoutes);
@@ -167,19 +156,44 @@ app.use("/profile", profileRoutes);
 app.use("/rewards", rewardRoutes);
 app.use("/payments", paymentRoutes);
 app.use("/admin", adminRoutes);
+app.use('/api/ai', aiRoutes); 
 
 /* =========================
-   HOME
+   HOME - FIXED: Now renders home.ejs as landing page
 ========================= */
 app.get("/", async (req, res) => {
-  const items = await Item.find({});
-  res.render("pages/index", { items });
+  try {
+    let recentItems = [];
+    try {
+      recentItems = await Item.find({ status: 'found' })
+        .sort({ createdAt: -1 })
+        .limit(6);
+    } catch (dbErr) {
+      console.log("Database error:", dbErr.message);
+    }
+    
+    res.render("home", { 
+      recentItems,
+      currentUser: req.user || null,
+      user: req.user || null
+    });
+  } catch (err) {
+    console.error("Error loading home page:", err);
+    res.render("home", { 
+      recentItems: [],
+      currentUser: req.user || null,
+      user: req.user || null
+    });
+  }
 });
 
 /* =========================
    ERRORS
 ========================= */
-app.use((req, res) => res.status(404).send("404 - Page Not Found"));
+app.use((req, res) => {
+  res.status(404).send("404 - Page Not Found");
+});
+
 app.use((err, req, res, next) => {
   console.error(err);
   res.status(500).send("500 - Server Error");
@@ -188,6 +202,7 @@ app.use((err, req, res, next) => {
 /* =========================
    SERVER
 ========================= */
-app.listen(8080, () => {
-  console.log("Server running on port 8080");
+const PORT = process.env.PORT || 8080;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });

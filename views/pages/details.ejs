@@ -1,19 +1,27 @@
 <% layout("layouts/boilerplate") %>
 
+<% 
+// Fix for EJS template compatibility
+if (!item.ownerConfirmed) item.ownerConfirmed = false;
+if (!item.rewardRequested) item.rewardRequested = item.rewardStatus === 'claimed' || item.rewardStatus === 'approved';
+if (!item.rewardPaid) item.rewardPaid = item.rewardStatus === 'paid';
+if (!item.rewardConfirmed) item.rewardConfirmed = item.rewardStatus === 'confirmed';
+if (!item.settled) item.settled = false;
+%>
+
 <div class="container mt-4 mb-5">
 
   <a href="/items" class="btn btn-outline-secondary mb-3">&larr; Back to all items</a>
 
   <div class="row g-4">
-
-    <!-- LEFT: IMAGE ONLY - REMOVED BUTTONS FROM HERE -->
+    <!-- LEFT: IMAGE -->
     <div class="col-md-5">
       <div class="detail-img-wrapper">
         <% if (item.image) { %>
           <img src="<%= item.image %>" 
                class="img-fluid rounded detail-img"
                alt="<%= item.title || 'Item Image' %>"
-               onerror="this.onerror=null; this.src='/images/default.jpg'; this.classList.add('broken-image')">
+               onerror="this.onerror=null; this.src='/images/default-item.jpg'; this.classList.add('broken-image')">
         <% } else { %>
           <div class="no-image-placeholder">
             <i class="fas fa-image fa-4x text-muted mb-3"></i>
@@ -26,7 +34,6 @@
     <!-- RIGHT: INFO -->
     <div class="col-md-7">
       <div class="detail-card p-4">
-
         <h1 class="detail-title mb-4"><%= item.title %></h1>
 
         <!-- STATUS BADGES -->
@@ -42,11 +49,11 @@
             </span>
           <% } %>
           
-          <% if (item.reward && item.reward > 0) { %>
-            <span class="badge bg-info p-2">
-              <i class="fas fa-gift me-1"></i> Reward: ₹<%= item.reward %>
-            </span>
-          <% } %>
+          <!-- REWARD BADGE - ALWAYS SHOW -->
+          <span class="badge <%= item.reward > 0 ? 'bg-info' : 'bg-secondary' %> p-2">
+            <i class="fas fa-gift me-1"></i> 
+            Reward: ₹<%= item.reward || 0 %>
+          </span>
         </div>
 
         <!-- ITEM DETAILS -->
@@ -58,25 +65,24 @@
             </div>
           <% } %>
           
-          <% if (item.reward && item.reward > 0) { %>
-            <div class="info-row mb-3">
-              <h6><i class="fas fa-gift text-success me-2"></i>Reward:</h6>
-              <p class="ms-4">₹<%= item.reward %> 
-                <span class="badge 
-                  <% if (item.rewardConfirmed) { %>bg-success
-                  <% } else if (item.rewardPaid) { %>bg-info
-                  <% } else if (item.rewardRequested) { %>bg-warning
-                  <% } else if (item.isReported) { %>bg-secondary
-                  <% } else { %>bg-primary<% } %> ms-2">
-                  <% if (item.rewardConfirmed) { %>CONFIRMED
-                  <% } else if (item.rewardPaid) { %>PAID
-                  <% } else if (item.rewardRequested) { %>REQUESTED
-                  <% } else if (item.isReported) { %>CLAIMED
-                  <% } else { %>AVAILABLE<% } %>
-                </span>
-              </p>
-            </div>
-          <% } %>
+          <!-- REWARD DETAILS - ALWAYS SHOW -->
+          <div class="info-row mb-3">
+            <h6><i class="fas fa-gift text-success me-2"></i>Reward:</h6>
+            <p class="ms-4">₹<%= item.reward || 0 %> 
+              <span class="badge 
+                <% if (item.rewardConfirmed) { %>bg-success
+                <% } else if (item.rewardPaid) { %>bg-info
+                <% } else if (item.rewardRequested) { %>bg-warning
+                <% } else if (item.finder) { %>bg-secondary
+                <% } else { %>bg-primary<% } %> ms-2">
+                <% if (item.rewardConfirmed) { %>CONFIRMED
+                <% } else if (item.rewardPaid) { %>PAID
+                <% } else if (item.rewardRequested) { %>REQUESTED
+                <% } else if (item.finder) { %>CLAIMED
+                <% } else { %>AVAILABLE<% } %>
+              </span>
+            </p>
+          </div>
           
           <% if (item.description) { %>
             <div class="info-row mb-4">
@@ -91,30 +97,183 @@
           </div>
         </div>
 
-        <!-- REWARD ACTION BUTTONS - MOVED HERE -->
-        <% if (user && item.status === 'found' && item.reward && item.reward > 0) { %>
-          <div class="reward-actions mt-4 pt-4 border-top">
-            <h5 class="mb-3"><i class="fas fa-gift me-2 text-warning"></i>Reward Actions</h5>
+        <!-- OWNER INFORMATION -->
+        <% if (item.owner && typeof item.owner === 'object') { %>
+          <div class="owner-section mt-4 pt-4 border-top">
+            <h4 class="mb-3"><i class="fas fa-user-tie me-2 text-primary"></i>Owner Information</h4>
+            <div class="owner-details bg-light p-3 rounded">
+              <div class="owner-item mb-2">
+                <strong><i class="fas fa-user me-2"></i>Name:</strong>
+                <span class="ms-2"><%= item.owner.name || 'Unknown' %></span>
+              </div>
+              <% if (item.owner.email) { %>
+                <div class="owner-item mb-2">
+                  <strong><i class="fas fa-envelope me-2"></i>Email:</strong>
+                  <span class="ms-2"><%= item.owner.email %></span>
+                </div>
+              <% } %>
+            </div>
+          </div>
+        <% } %>
+
+        <!-- FOUND BY INFORMATION -->
+        <% if (item.status === 'found' && item.finder) { %>
+          <div class="found-by-section mt-4 pt-4 border-top">
+            <h4 class="mb-3"><i class="fas fa-user-check me-2 text-success"></i>Found By</h4>
+            <div class="alert alert-success">
+              <p><strong>This item has been found!</strong></p>
+              
+              <p><strong>Found by:</strong> 
+                <%= item.finder.name || item.finder.username || 'Anonymous User' %>
+              </p>
+              
+              <% if (item.foundLocation) { %>
+                <p><strong>Found at: </strong><%= item.foundLocation %></p>
+              <% } %>
+              
+              <% if (item.foundNotes) { %>
+                <p><strong>Notes: </strong><%= item.foundNotes %></p>
+              <% } %>
+              
+              <p class="mb-0"><strong>Found on: </strong><%= item.foundDate ? new Date(item.foundDate).toDateString() : 'Unknown date' %></p>
+            </div>
             
-            <!-- REQUEST REWARD Button (for finder) -->
-            <% if (item.reportedBy && item.reportedBy.equals(user._id) && !item.rewardRequested) { %>
-              <button class="btn btn-warning btn-lg me-3 mb-2" data-bs-toggle="modal" data-bs-target="#requestRewardModal">
-                <i class="fas fa-hand-holding-usd me-2"></i> Request Reward
-              </button>
-            <% } %>
-            
-            <!-- APPROVE REWARD Button (for owner) -->
-            <% if (item.owner && item.owner.equals(user._id) && item.rewardRequested && !item.rewardPaid) { %>
-              <button class="btn btn-success btn-lg mb-2" data-bs-toggle="modal" data-bs-target="#approveRewardModal">
-                <i class="fas fa-check-circle me-2"></i> Approve & Pay Reward
-              </button>
-            <% } %>
-            
-            <!-- CONFIRM RECEIPT Button (for finder after payment) -->
-            <% if (item.reportedBy && item.reportedBy.equals(user._id) && item.rewardPaid && !item.rewardConfirmed) { %>
-              <button class="btn btn-info btn-lg mb-2" data-bs-toggle="modal" data-bs-target="#confirmReceiptModal">
-                <i class="fas fa-receipt me-2"></i> Confirm Receipt
-              </button>
+            <!-- REWARD STATUS SECTION - Only show if reward > 0 -->
+            <% if (item.reward > 0) { %>
+              <div class="reward-status-section mt-4">
+                <h5 class="mb-3"><i class="fas fa-gift me-2 text-warning"></i>Reward Status</h5>
+                
+                <!-- Determine user roles -->
+                <% 
+                let isFinder = false;
+                let isOwner = false;
+                
+                if (user && user._id) {
+                  // Check if user is owner
+                  if (item.owner && item.owner._id) {
+                    isOwner = item.owner._id.toString() === user._id.toString();
+                  }
+                  
+                  // Check if user is finder
+                  if (item.finder && item.finder._id) {
+                    isFinder = item.finder._id.toString() === user._id.toString();
+                  }
+                }
+                %>
+                
+                <div class="reward-progress mb-4">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="<%= item.ownerConfirmed ? 'text-success' : 'text-muted' %>">
+                      <i class="fas fa-<%= item.ownerConfirmed ? 'check-circle' : 'clock' %> me-1"></i>
+                      <% if (item.ownerConfirmed) { %>
+                        Owner Confirmed Receipt
+                      <% } else { %>
+                        Awaiting Owner Confirmation
+                      <% } %>
+                    </span>
+                    <span class="<%= item.rewardRequested ? 'text-warning' : 'text-muted' %>">
+                      <i class="fas fa-<%= item.rewardRequested ? 'hand-paper' : 'clock' %> me-1"></i>
+                      <% if (item.rewardRequested) { %>
+                        Reward Requested
+                      <% } else { %>
+                        Reward Not Requested
+                      <% } %>
+                    </span>
+                    <span class="<%= item.rewardPaid ? 'text-success' : 'text-muted' %>">
+                      <i class="fas fa-<%= item.rewardPaid ? 'money-bill-wave' : 'clock' %> me-1"></i>
+                      <% if (item.rewardPaid) { %>
+                        Reward Paid
+                      <% } else { %>
+                        Not Paid
+                      <% } %>
+                    </span>
+                    <span class="<%= item.rewardConfirmed ? 'text-success' : 'text-muted' %>">
+                      <i class="fas fa-<%= item.rewardConfirmed ? 'check-double' : 'clock' %> me-1"></i>
+                      <% if (item.rewardConfirmed) { %>
+                        Transaction Complete
+                      <% } else { %>
+                        Pending
+                      <% } %>
+                    </span>
+                  </div>
+                </div>
+                
+                <!-- REWARD ACTION BUTTONS -->
+                <div class="reward-action-buttons">
+                  
+                  <!-- FOR FINDER: Claim Reward (only after owner confirmation) -->
+                  <% if (isFinder && item.ownerConfirmed && !item.rewardRequested && !item.rewardPaid) { %>
+                    <button class="btn btn-warning btn-lg me-3 mb-2" data-bs-toggle="modal" data-bs-target="#claimRewardModal">
+                      <i class="fas fa-hand-holding-usd me-2"></i> Claim Reward (₹<%= item.reward %>)
+                    </button>
+                  <% } %>
+                  
+                  <!-- FOR OWNER: Confirm Receipt (when item is found but not confirmed) -->
+                  <% if (isOwner && item.status === 'found' && !item.ownerConfirmed) { %>
+                    <button class="btn btn-success btn-lg me-3 mb-2" data-bs-toggle="modal" data-bs-target="#confirmReceiptModal">
+                      <i class="fas fa-check-circle me-2"></i> Confirm You Received Item
+                    </button>
+                  <% } %>
+                  
+                  <!-- FOR OWNER: Pay Reward (after reward is requested) -->
+                  <% if (isOwner && item.rewardRequested && !item.rewardPaid) { %>
+                    <button class="btn btn-success btn-lg me-3 mb-2" data-bs-toggle="modal" data-bs-target="#payRewardModal">
+                      <i class="fas fa-money-bill-wave me-2"></i> Pay Reward (₹<%= item.reward %>)
+                    </button>
+                  <% } %>
+                  
+                  <!-- FOR FINDER: Confirm Receipt of Reward (after payment) -->
+                  <% if (isFinder && item.rewardPaid && !item.rewardConfirmed) { %>
+                    <button class="btn btn-info btn-lg mb-2" data-bs-toggle="modal" data-bs-target="#confirmRewardModal">
+                      <i class="fas fa-receipt me-2"></i> Confirm You Received Reward
+                    </button>
+                  <% } %>
+                  
+                  <!-- FOR OWNER: Mark as Settled (after reward confirmed) -->
+                  <% if (isOwner && item.rewardConfirmed && !item.settled) { %>
+                    <button class="btn btn-primary btn-lg mb-2" data-bs-toggle="modal" data-bs-target="#settleModal">
+                      <i class="fas fa-star me-2"></i> Mark as Settled
+                    </button>
+                  <% } %>
+                  
+                  <!-- Show star if settled -->
+                  <% if (item.settled) { %>
+                    <div class="alert alert-success">
+                      <i class="fas fa-star text-warning me-2"></i>
+                      <strong>This item has been settled!</strong> The transaction is complete.
+                    </div>
+                  <% } %>
+                  
+                  <!-- Status Messages -->
+                  <% if (isFinder && !item.ownerConfirmed) { %>
+                    <div class="alert alert-warning">
+                      <i class="fas fa-clock me-2"></i>
+                      Waiting for owner to confirm they received the item before you can claim the reward.
+                    </div>
+                  <% } %>
+                  
+                  <% if (isFinder && item.ownerConfirmed && !item.rewardRequested) { %>
+                    <div class="alert alert-info">
+                      <i class="fas fa-info-circle me-2"></i>
+                      Owner has confirmed receipt. You can now claim the ₹<%= item.reward %> reward.
+                    </div>
+                  <% } %>
+                  
+                  <% if (isFinder && item.rewardRequested && !item.rewardPaid) { %>
+                    <div class="alert alert-warning">
+                      <i class="fas fa-clock me-2"></i>
+                      Reward claimed. Waiting for owner to make payment.
+                    </div>
+                  <% } %>
+                  
+                  <% if (isOwner && item.rewardRequested && !item.rewardPaid) { %>
+                    <div class="alert alert-warning">
+                      <i class="fas fa-hand-holding-usd me-2"></i>
+                      Finder has claimed the ₹<%= item.reward %> reward. Please make payment.
+                    </div>
+                  <% } %>
+                </div>
+              </div>
             <% } %>
           </div>
         <% } %>
@@ -148,96 +307,91 @@
           </div>
         <% } %>
 
-        <!-- FOUND BY INFORMATION -->
-        <% if (item.status === 'found' && item.reportedBy) { %>
-          <div class="found-by-section mt-4 pt-4 border-top">
-            <h4 class="mb-3"><i class="fas fa-user-check me-2 text-success"></i>Found By</h4>
-            <div class="alert alert-success">
-              <p><strong>This item has been found!</strong></p>
-              <p><strong>Found by:</strong> 
-                <% if (item.reportedBy.name) { %>
-                  <%= item.reportedBy.name %>
-                <% } else if (item.reportedBy.username) { %>
-                  @<%= item.reportedBy.username %>
-                <% } else { %>
-                  User #<%= item.reportedBy._id.toString().slice(-6) %>
-                <% } %>
-              </p>
-              <% if (item.foundLocation) { %>
-                <p><strong>Found at: </strong><%= item.foundLocation %></p>
-              <% } %>
-              <% if (item.foundNotes) { %>
-                <p><strong>Notes: </strong><%= item.foundNotes %></p>
-              <% } %>
-              <p class="mb-0"><strong>Found on: </strong><%= item.updatedAt ? new Date(item.updatedAt).toDateString() : 'Unknown date' %></p>
-            </div>
-          </div>
-        <% } %>
-
         <!-- ACTION BUTTONS -->
         <div class="action-buttons mt-4 pt-4 border-top">
-          <!-- Owner Actions -->
-          <% if (user && item.owner && item.owner.equals(user._id)) { %>
-            <div class="owner-actions">
-              <a href="/items/<%= item._id %>/edit" class="btn btn-warning me-2">
-                <i class="fas fa-edit me-1"></i> Edit Item
-              </a>
-              
-              <!-- Report as Found Button (for owner if item is lost) -->
-              <% if (item.status === 'lost') { %>
-                <button class="btn btn-success me-2" data-bs-toggle="modal" data-bs-target="#markAsFoundModal">
-                  <i class="fas fa-check me-1"></i> Mark as Found
+          <% if (user) { %>
+            <% 
+            // Check if user is owner
+            const isOwner = item.owner && item.owner._id && user._id && 
+                           item.owner._id.toString() === user._id.toString();
+            %>
+            
+            <% if (isOwner) { %>
+              <!-- OWNER ACTIONS -->
+              <div class="owner-actions">
+                <a href="/items/<%= item._id %>/edit" class="btn btn-warning me-2 mb-2">
+                  <i class="fas fa-edit me-1"></i> Edit Item
+                </a>
+                
+                <!-- Change Status Button (for owner) -->
+                <button class="btn btn-info me-2 mb-2" data-bs-toggle="modal" data-bs-target="#changeStatusModal">
+                  <i class="fas fa-exchange-alt me-1"></i> Change Status
                 </button>
-              <% } %>
-              
-              <form action="/items/<%= item._id %>?_method=DELETE" 
-                    method="POST" 
-                    class="d-inline"
-                    onsubmit="return confirm('Are you sure you want to delete this item?');">
-                <button class="btn btn-danger">
-                  <i class="fas fa-trash me-1"></i> Delete Item
-                </button>
-              </form>
-            </div>
-          <% } else if (user) { %>
-            <!-- Non-owner Actions -->
-            <div class="non-owner-actions">
-              <!-- Found Item Button -->
-              <% if (item.status === 'lost') { %>
-                <button class="btn btn-success btn-lg me-3" 
-                        data-bs-toggle="modal" 
-                        data-bs-target="#foundItemModal">
-                  <i class="fas fa-check-circle me-2"></i> I Found This Item
-                </button>
-              <% } %>
-              
-              <!-- Report Lost Item Button -->
-              <% if (item.status === 'found') { %>
-                <button class="btn btn-primary btn-lg" 
-                        data-bs-toggle="modal" 
-                        data-bs-target="#reportLostModal">
-                  <i class="fas fa-flag me-2"></i> Report Similar Lost Item
-                </button>
-              <% } %>
-            </div>
+                
+                <!-- Mark as Found Button (for owner) -->
+                <% if (item.status === 'lost') { %>
+                  <button class="btn btn-success me-2 mb-2" data-bs-toggle="modal" data-bs-target="#ownerMarkFoundModal">
+                    <i class="fas fa-check me-1"></i> Mark as Found
+                  </button>
+                <% } %>
+                
+                <!-- Confirm Receipt Button (for owner when someone else marked it found) -->
+                <% if (item.status === 'found' && item.finder && !item.ownerConfirmed) { %>
+                  <button class="btn btn-success me-2 mb-2" data-bs-toggle="modal" data-bs-target="#confirmReceiptModal">
+                    <i class="fas fa-check-circle me-1"></i> Confirm Receipt
+                  </button>
+                <% } %>
+                
+                <form action="/items/<%= item._id %>/delete" 
+                      method="POST" 
+                      class="d-inline"
+                      onsubmit="return confirm('Are you sure you want to delete this item?');">
+                  <input type="hidden" name="_method" value="DELETE">
+                  <button class="btn btn-danger mb-2">
+                    <i class="fas fa-trash me-1"></i> Delete Item
+                  </button>
+                </form>
+              </div>
+            <% } else { %>
+              <!-- NON-OWNER ACTIONS -->
+              <div class="non-owner-actions">
+                <!-- Found Item Button (for non-owner) -->
+                <% if (item.status === 'lost') { %>
+                  <button class="btn btn-success btn-lg me-3 mb-2" 
+                          data-bs-toggle="modal" 
+                          data-bs-target="#foundItemModal">
+                    <i class="fas fa-check-circle me-2"></i> I Found This Item
+                  </button>
+                <% } %>
+                
+                <!-- Report Similar Lost Item -->
+                <% if (item.status === 'found') { %>
+                  <a href="/items/create" class="btn btn-primary btn-lg mb-2">
+                    <i class="fas fa-flag me-2"></i> Report Similar Lost Item
+                  </a>
+                <% } %>
+              </div>
+            <% } %>
           <% } else { %>
-            <!-- Not logged in -->
+            <!-- NOT LOGGED IN -->
             <div class="alert alert-info">
               <i class="fas fa-info-circle me-2"></i>
               Please <a href="/login" class="alert-link">login</a> to report found items or claim rewards.
             </div>
           <% } %>
         </div>
-
       </div>
     </div>
-    
   </div>
 </div>
 
 <!-- MODALS -->
 
-<!-- Found Item Modal -->
+<!-- FOUND ITEM MODAL (for non-owner) -->
+<% if (user && item.status === 'lost') { 
+     const isOwner = item.owner && item.owner._id && user._id && 
+                     item.owner._id.toString() === user._id.toString();
+     if (!isOwner) { %>
 <div class="modal fade" id="foundItemModal" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -264,7 +418,7 @@
           <% if (item.reward > 0) { %>
             <div class="alert alert-info">
               <h6><i class="fas fa-gift me-2"></i>Reward Available: ₹<%= item.reward %></h6>
-              <p class="mb-0">You can request this reward once the owner verifies the item is returned.</p>
+              <p class="mb-0">After marking as found, the owner must confirm receipt before you can claim the reward.</p>
             </div>
           <% } %>
         </div>
@@ -276,191 +430,14 @@
     </div>
   </div>
 </div>
+<% } } %>
 
-<!-- Request Reward Modal -->
-<div class="modal fade" id="requestRewardModal" tabindex="-1">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title"><i class="fas fa-hand-holding-usd text-warning me-2"></i>Request Reward</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <form action="/items/<%= item._id %>/request-reward" method="POST">
-        <div class="modal-body">
-          <p>You are requesting the reward of <strong>₹<%= item.reward %></strong> for finding "<%= item.title %>".</p>
-          
-          <div class="mb-3">
-            <label class="form-label">Payment Method Preferred *</label>
-            <select class="form-select" name="preferredPayment" required>
-              <option value="">Select payment method</option>
-              <option value="upi">UPI</option>
-              <option value="bank_transfer">Bank Transfer</option>
-              <option value="cash">Cash</option>
-              <option value="other">Other</option>
-            </select>
-          </div>
-          
-          <div class="mb-3">
-            <label class="form-label">Payment Details *</label>
-            <input type="text" class="form-control" name="paymentDetails" required 
-                   placeholder="Enter UPI ID, Account Number, etc.">
-          </div>
-          
-          <div class="alert alert-info">
-            <i class="fas fa-info-circle me-2"></i>
-            The owner will be notified of your reward request. They will approve and pay you directly.
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-warning">Request Reward</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-
-<!-- Approve Reward Modal -->
-<div class="modal fade" id="approveRewardModal" tabindex="-1">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title"><i class="fas fa-check-circle text-success me-2"></i>Approve & Pay Reward</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <form action="/items/<%= item._id %>/approve-reward" method="POST">
-        <div class="modal-body">
-          <p>You are approving the reward payment of <strong>₹<%= item.reward %></strong> to the finder.</p>
-          
-          <div class="mb-3">
-            <label class="form-label">Payment Method Used *</label>
-            <select class="form-select" name="paymentMethod" required>
-              <option value="">Select payment method</option>
-              <option value="upi">UPI</option>
-              <option value="bank_transfer">Bank Transfer</option>
-              <option value="cash">Cash</option>
-              <option value="other">Other</option>
-            </select>
-          </div>
-          
-          <div class="mb-3">
-            <label class="form-label">Transaction ID / Reference *</label>
-            <input type="text" class="form-control" name="transactionId" required 
-                   placeholder="Enter UPI transaction ID, bank reference number, etc.">
-          </div>
-          
-          <div class="mb-3">
-            <label class="form-label">Payment Date *</label>
-            <input type="date" class="form-control" name="paymentDate" required 
-                   value="<%= new Date().toISOString().split('T')[0] %>">
-          </div>
-          
-          <div class="alert alert-warning">
-            <i class="fas fa-exclamation-triangle me-2"></i>
-            Please ensure you have actually paid the reward before confirming.
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-success">Confirm Payment</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-
-<!-- Confirm Receipt Modal -->
-<div class="modal fade" id="confirmReceiptModal" tabindex="-1">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title"><i class="fas fa-receipt text-info me-2"></i>Confirm Receipt</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <form action="/items/<%= item._id %>/confirm-receipt" method="POST">
-        <div class="modal-body">
-          <p>Confirm that you have received the reward of <strong>₹<%= item.reward %></strong>.</p>
-          
-          <div class="mb-3">
-            <label class="form-label">Amount Received *</label>
-            <div class="input-group">
-              <span class="input-group-text">₹</span>
-              <input type="number" class="form-control" name="amountReceived" 
-                     value="<%= item.reward %>" min="0" step="0.01" required>
-            </div>
-          </div>
-          
-          <div class="mb-3">
-            <label class="form-label">Receipt Date *</label>
-            <input type="date" class="form-control" name="receiptDate" required 
-                   value="<%= new Date().toISOString().split('T')[0] %>">
-          </div>
-          
-          <div class="form-check mb-3">
-            <input class="form-check-input" type="checkbox" id="confirmPayment" required>
-            <label class="form-check-label" for="confirmPayment">
-              I confirm that I have received the full reward amount
-            </label>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-info">Confirm Receipt</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-
-<!-- Report Lost Item Modal -->
-<div class="modal fade" id="reportLostModal" tabindex="-1">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title"><i class="fas fa-flag text-primary me-2"></i>Report Similar Lost Item</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <form action="/items/report-lost" method="POST">
-        <input type="hidden" name="similarTo" value="<%= item._id %>">
-        <div class="modal-body">
-          <p>Create a new lost item report similar to this found item.</p>
-          
-          <div class="mb-3">
-            <label class="form-label">Item Title *</label>
-            <input type="text" class="form-control" name="title" required 
-                   value="Similar to: <%= item.title %>">
-          </div>
-          
-          <div class="mb-3">
-            <label class="form-label">Description *</label>
-            <textarea class="form-control" name="description" rows="3" required>
-I lost a similar item: <%= item.description %>
-            </textarea>
-          </div>
-          
-          <div class="mb-3">
-            <label class="form-label">Where did you lose it? *</label>
-            <input type="text" class="form-control" name="location" required 
-                   placeholder="Enter location where you lost the item">
-          </div>
-          
-          <div class="mb-3">
-            <label class="form-label">Reward (₹) - Optional</label>
-            <input type="number" class="form-control" name="reward" min="0" 
-                   placeholder="Enter reward amount if any">
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-primary">Submit Report</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-
-<!-- Mark as Found Modal (for owner) -->
-<div class="modal fade" id="markAsFoundModal" tabindex="-1">
+<!-- OWNER MARK AS FOUND MODAL -->
+<% if (user && item.status === 'lost') { 
+     const isOwner = item.owner && item.owner._id && user._id && 
+                     item.owner._id.toString() === user._id.toString();
+     if (isOwner) { %>
+<div class="modal fade" id="ownerMarkFoundModal" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
@@ -469,7 +446,7 @@ I lost a similar item: <%= item.description %>
       </div>
       <form action="/items/<%= item._id %>/owner-mark-found" method="POST">
         <div class="modal-body">
-          <p>Mark "<%= item.title %>" as found?</p>
+          <p>Mark "<strong><%= item.title %></strong>" as found?</p>
           
           <div class="mb-3">
             <label class="form-label">Where was it found? *</label>
@@ -477,9 +454,16 @@ I lost a similar item: <%= item.description %>
                    placeholder="Enter location where item was found">
           </div>
           
+          <div class="mb-3">
+            <label class="form-label">Additional Notes (Optional)</label>
+            <textarea class="form-control" name="foundNotes" rows="3" 
+                      placeholder="Any additional information..."></textarea>
+          </div>
+          
           <% if (item.reward > 0) { %>
-            <div class="alert alert-info">
-              <p><i class="fas fa-info-circle me-2"></i>Reward of ₹<%= item.reward %> will be marked as claimed.</p>
+            <div class="alert alert-warning">
+              <h6><i class="fas fa-exclamation-triangle me-2"></i>Reward Notice</h6>
+              <p class="mb-0">Since you found it yourself, no reward payment will be needed.</p>
             </div>
           <% } %>
         </div>
@@ -491,206 +475,843 @@ I lost a similar item: <%= item.description %>
     </div>
   </div>
 </div>
+<% } } %>
+
+<!-- CHANGE STATUS MODAL -->
+<% if (user && item.status === 'found' && isOwner) { %>
+<div class="modal fade" id="changeStatusModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="fas fa-exchange-alt text-info me-2"></i>Change Item Status</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form action="/items/<%= item._id %>/change-status" method="POST">
+        <div class="modal-body">
+          <p>Change status of "<strong><%= item.title %></strong>"?</p>
+          
+          <div class="mb-3">
+            <label class="form-label">Select New Status *</label>
+            <select class="form-select" name="newStatus" required>
+              <option value="lost" <%= item.status === 'lost' ? 'selected' : '' %>>Lost</option>
+              <option value="found" <%= item.status === 'found' ? 'selected' : '' %>>Found</option>
+            </select>
+          </div>
+          
+          <div class="alert alert-info">
+            <i class="fas fa-info-circle me-2"></i>
+            Changing to "Found" will mark this item as returned to you.
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-info">Change Status</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<% } %>
+
+<!-- CONFIRM RECEIPT MODAL -->
+<% if (user && item.status === 'found' && item.finder && !item.ownerConfirmed && isOwner) { %>
+<div class="modal fade" id="confirmReceiptModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="fas fa-check-circle text-success me-2"></i>Confirm Receipt</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form action="/items/<%= item._id %>/confirm-receipt" method="POST">
+        <div class="modal-body">
+          <p>Confirm that you have received "<strong><%= item.title %></strong>" back?</p>
+          
+          <div class="mb-3">
+            <label class="form-label">Condition of Item</label>
+            <select class="form-select" name="itemCondition">
+              <option value="">Select condition</option>
+              <option value="Excellent">Excellent (Like new)</option>
+              <option value="Good">Good (Minor wear)</option>
+              <option value="Fair">Fair (Some damage)</option>
+              <option value="Poor">Poor (Significant damage)</option>
+            </select>
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label">Additional Notes</label>
+            <textarea class="form-control" name="receiptNotes" rows="3" 
+                      placeholder="Any notes about receiving the item..."></textarea>
+          </div>
+          
+          <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" id="confirmReceipt" required>
+            <label class="form-check-label" for="confirmReceipt">
+              I confirm that I have received this item back in my possession
+            </label>
+          </div>
+          
+          <% if (item.reward > 0) { %>
+            <div class="alert alert-info">
+              <h6><i class="fas fa-gift me-2"></i>Reward Notice</h6>
+              <p class="mb-0">After confirmation, the finder will be able to claim the ₹<%= item.reward %> reward.</p>
+            </div>
+          <% } %>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-success">Confirm Receipt</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<% } %>
+
+<!-- CLAIM REWARD MODAL -->
+<% if (user && item.status === 'found' && item.ownerConfirmed && item.reward > 0 && !item.rewardRequested) { 
+     let isFinder = false;
+     if (user && user._id && item.finder && item.finder._id) {
+       isFinder = item.finder._id.toString() === user._id.toString();
+     }
+     
+     if (isFinder) { %>
+<div class="modal fade" id="claimRewardModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="fas fa-hand-holding-usd text-warning me-2"></i>Claim Reward</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form action="/items/<%= item._id %>/claim-reward" method="POST">
+        <div class="modal-body">
+          <p>You are claiming the reward of <strong>₹<%= item.reward %></strong> for finding "<%= item.title %>".</p>
+          
+          <div class="mb-3">
+            <label class="form-label">Payment Method *</label>
+            <select class="form-select" name="paymentMethod" required>
+              <option value="">Select payment method</option>
+              <option value="upi">UPI</option>
+              <option value="bank">Bank Transfer</option>
+              <option value="cash">Cash</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label">UPI ID (if UPI selected)</label>
+            <input type="text" class="form-control" name="upiId" 
+                   placeholder="Enter your UPI ID">
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label">Bank Account Number (if Bank Transfer)</label>
+            <input type="text" class="form-control" name="accountNumber" 
+                   placeholder="Enter your account number">
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label">Bank Name</label>
+            <input type="text" class="form-control" name="bankName" 
+                   placeholder="Enter bank name">
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label">Account Holder Name</label>
+            <input type="text" class="form-control" name="accountHolderName" 
+                   placeholder="Enter account holder name">
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label">IFSC Code</label>
+            <input type="text" class="form-control" name="ifscCode" 
+                   placeholder="Enter IFSC code">
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label">Other Details (if Other payment method)</label>
+            <textarea class="form-control" name="otherDetails" rows="2" 
+                      placeholder="Enter other payment details..."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-warning">Claim Reward</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<% } } %>
+
+<!-- PAY REWARD MODAL -->
+<% if (user && item.rewardRequested && !item.rewardPaid && isOwner) { %>
+<div class="modal fade" id="payRewardModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="fas fa-money-bill-wave text-success me-2"></i>Pay Reward</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form action="/items/<%= item._id %>/pay-reward" method="POST" enctype="multipart/form-data">
+        <div class="modal-body">
+          <p>You are paying the reward of <strong>₹<%= item.reward %></strong> to the finder.</p>
+          
+          <div class="mb-3">
+            <label class="form-label">Payment Method Used *</label>
+            <input type="text" class="form-control" name="paymentMethod" 
+                   value="<%= item.paymentMethod || '' %>" readonly>
+          </div>
+          
+          <% if (item.paymentDetails && item.paymentDetails.upiId) { %>
+            <div class="mb-3">
+              <label class="form-label">Finder's UPI ID</label>
+              <input type="text" class="form-control" 
+                     value="<%= item.paymentDetails.upiId %>" readonly>
+            </div>
+          <% } %>
+          
+          <% if (item.paymentDetails && item.paymentDetails.accountNumber) { %>
+            <div class="mb-3">
+              <label class="form-label">Finder's Bank Details</label>
+              <input type="text" class="form-control mb-2" 
+                     value="Account: <%= item.paymentDetails.accountNumber %>" readonly>
+              <input type="text" class="form-control mb-2" 
+                     value="Bank: <%= item.paymentDetails.bankName %>" readonly>
+              <input type="text" class="form-control" 
+                     value="IFSC: <%= item.paymentDetails.ifscCode %>" readonly>
+            </div>
+          <% } %>
+          
+          <div class="mb-3">
+            <label class="form-label">Transaction ID / Reference *</label>
+            <input type="text" class="form-control" name="transactionId" required 
+                   placeholder="Enter UPI transaction ID, bank reference number, etc.">
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label">Payment Proof (Screenshot/Receipt)</label>
+            <input type="file" class="form-control" name="paymentProof" accept="image/*">
+          </div>
+          
+          <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" id="confirmPayment" required>
+            <label class="form-check-label" for="confirmPayment">
+              I confirm that I have paid ₹<%= item.reward %> to the finder
+            </label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-success">Confirm Payment</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<% } %>
+
+<!-- CONFIRM REWARD MODAL -->
+<% if (user && item.rewardPaid && !item.rewardConfirmed) { 
+     let isFinder = false;
+     if (user && user._id && item.finder && item.finder._id) {
+       isFinder = item.finder._id.toString() === user._id.toString();
+     }
+     
+     if (isFinder) { %>
+<div class="modal fade" id="confirmRewardModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="fas fa-receipt text-info me-2"></i>Confirm Reward Receipt</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form action="/items/<%= item._id %>/confirm-reward" method="POST">
+        <div class="modal-body">
+          <p>Confirm that you have received the reward of <strong>₹<%= item.reward %></strong>.</p>
+          
+          <div class="mb-3">
+            <label class="form-label">Confirmation Code *</label>
+            <input type="text" class="form-control" name="confirmationCode" required 
+                   placeholder="Enter confirmation code sent by owner">
+          </div>
+          
+          <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" id="confirmRewardReceipt" required>
+            <label class="form-check-label" for="confirmRewardReceipt">
+              I confirm that I have received the full reward amount of ₹<%= item.reward %>
+            </label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-info">Confirm Receipt</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<% } } %>
+
+<!-- SETTLE MODAL -->
+<% if (user && item.rewardConfirmed && !item.settled && isOwner) { %>
+<div class="modal fade" id="settleModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="fas fa-star text-warning me-2"></i>Mark as Settled</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form action="/items/<%= item._id %>/settle" method="POST">
+        <div class="modal-body">
+          <p>Mark "<strong><%= item.title %></strong>" as settled?</p>
+          
+          <div class="alert alert-success">
+            <i class="fas fa-check-circle me-2"></i>
+            <strong>All conditions met:</strong>
+            <ul class="mb-0 mt-2">
+              <li>✓ Item found by <%= item.finder && item.finder.name ? item.finder.name : 'finder' %></li>
+              <li>✓ You confirmed receipt</li>
+              <li>✓ Finder claimed reward</li>
+              <li>✓ You paid the reward</li>
+              <li>✓ Finder confirmed receipt</li>
+            </ul>
+          </div>
+          
+          <p class="mt-3">This will mark the transaction as complete and show a star on the item.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-warning">Mark as Settled</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<% } %>
 
 <style>
+  .container {
+    max-width: 1200px;
+  }
+  
   .detail-img-wrapper {
     height: 400px;
     overflow: hidden;
-    border-radius: 8px;
+    border-radius: 12px;
     background: #f8f9fa;
-    margin-bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    border: 1px solid #e9ecef;
   }
   
   .detail-img {
     width: 100%;
     height: 100%;
-    object-fit: fill;
+    object-fit: cover;
+    transition: transform 0.3s ease;
   }
   
-  .detail-img.no-image {
-    object-fit: contain;
-    padding: 20px;
+  .detail-img:hover {
+    transform: scale(1.02);
   }
   
-   .no-image-placeholder {
-    height: 400px;
+  .no-image-placeholder {
+    height: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    color: #6c757d;
+  }
+  
+  .no-image-placeholder i {
+    font-size: 64px;
+    margin-bottom: 15px;
+    opacity: 0.5;
   }
   
   .detail-card {
     background: white;
-    border-radius: 10px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    border-radius: 12px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
     border: 1px solid #e9ecef;
     height: 100%;
   }
   
   .detail-title {
     color: #2c3e50;
-    font-weight: 600;
-    border-bottom: 2px solid #3498db;
+    font-weight: 700;
+    border-bottom: 3px solid #3498db;
     padding-bottom: 15px;
+    margin-bottom: 25px;
+  }
+  
+  .status-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 30px;
   }
   
   .status-badges .badge {
-    font-size: 0.9rem;
-    padding: 8px 15px;
-    border-radius: 20px;
+    font-size: 0.95rem;
+    padding: 10px 18px;
+    border-radius: 25px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    display: inline-flex;
+    align-items: center;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+  }
+  
+  .badge.bg-success {
+    background: linear-gradient(135deg, #2ecc71, #27ae60) !important;
+  }
+  
+  .badge.bg-warning {
+    background: linear-gradient(135deg, #f39c12, #e67e22) !important;
+    color: white !important;
+  }
+  
+  .badge.bg-primary {
+    background: linear-gradient(135deg, #3498db, #2980b9) !important;
+  }
+  
+  .badge.bg-info {
+    background: linear-gradient(135deg, #00cec9, #0984e3) !important;
+  }
+  
+  .badge.bg-danger {
+    background: linear-gradient(135deg, #e74c3c, #c0392b) !important;
+  }
+  
+  .badge.bg-secondary {
+    background: linear-gradient(135deg, #7f8c8d, #95a5a6) !important;
+  }
+  
+  .item-info {
+    margin-bottom: 30px;
+  }
+  
+  .info-row {
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px dashed #e9ecef;
+  }
+  
+  .info-row:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
   }
   
   .info-row h6 {
-    color: #495057;
+    color: #2c3e50;
     font-weight: 600;
+    font-size: 1rem;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+  }
+  
+  .info-row h6 i {
+    width: 24px;
+    text-align: center;
   }
   
   .info-row p {
-    color: #212529;
+    color: #34495e;
+    line-height: 1.6;
+    margin: 0;
+    padding-left: 32px;
   }
   
-  .reward-timeline {
-    background: #f8f9fa;
+  .contact-section,
+  .owner-section,
+  .found-by-section,
+  .reward-actions {
+    margin-top: 30px;
+    padding-top: 25px;
+    border-top: 2px solid #e9ecef;
+  }
+  
+  .contact-section h4,
+  .owner-section h4,
+  .found-by-section h4,
+  .reward-actions h5 {
+    color: #2c3e50;
+    font-weight: 600;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+  }
+  
+  .contact-section h4 i,
+  .owner-section h4 i,
+  .found-by-section h4 i,
+  .reward-actions h5 i {
+    margin-right: 10px;
+  }
+  
+  .contact-details,
+  .owner-details {
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
     padding: 20px;
     border-radius: 10px;
     border: 1px solid #dee2e6;
   }
   
-  .timeline {
+  .contact-item,
+  .owner-item {
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+  }
+  
+  .contact-item:last-child,
+  .owner-item:last-child {
+    border-bottom: none;
+  }
+  
+  .contact-item strong,
+  .owner-item strong {
+    color: #2c3e50;
+    min-width: 120px;
+    display: inline-block;
+  }
+  
+  .contact-item a,
+  .owner-item a {
+    color: #3498db;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  
+  .contact-item a:hover,
+  .owner-item a:hover {
+    color: #2980b9;
+    text-decoration: underline;
+  }
+  
+  .found-by-section .alert {
+    background: linear-gradient(135deg, #d4edda, #c3e6cb);
+    border: 1px solid #c3e6cb;
+    border-radius: 10px;
+    color: #155724;
+  }
+  
+  .action-buttons {
+    margin-top: 30px;
+    padding-top: 25px;
+    border-top: 2px solid #e9ecef;
+  }
+  
+  .owner-actions,
+  .non-owner-actions {
     display: flex;
-    justify-content: space-between;
-    position: relative;
-    margin-top: 20px;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
   }
   
-  .timeline::before {
-    content: '';
-    position: absolute;
-    top: 20px;
-    left: 10%;
-    right: 10%;
-    height: 2px;
-    background: #dee2e6;
-    z-index: 1;
-  }
-  
-  .timeline-step {
-    text-align: center;
-    position: relative;
-    z-index: 2;
-    flex: 1;
-  }
-  
-  .timeline-step.active .timeline-icon {
-    background: #28a745;
-    color: white;
-  }
-  
-  .timeline-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: #dee2e6;
-    color: #6c757d;
-    display: flex;
+  .btn {
+    border-radius: 8px;
+    padding: 10px 24px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: none;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    margin: 0 auto 10px;
-    font-weight: bold;
   }
   
-  .timeline-label {
-    font-size: 0.85rem;
-    color: #6c757d;
-    margin-bottom: 5px;
+  .btn-lg {
+    padding: 12px 30px;
+    font-size: 1.1rem;
   }
   
-  .timeline-date {
-    font-size: 0.75rem;
-    color: #adb5bd;
-  }
-  
-  .contact-details {
-    background: #f8f9fa;
-    padding: 20px;
-    border-radius: 8px;
-  }
-  
-  .contact-item {
-    padding: 5px 0;
-  }
-  
-  .quick-actions .btn {
-    margin-bottom: 10px;
-    padding: 10px;
-    font-weight: 500;
-  }
-  
-  .action-buttons .btn {
-    padding: 10px 20px;
-    font-weight: 500;
-    border-radius: 8px;
+  .btn i {
+    margin-right: 8px;
   }
   
   .btn-success {
-    background: #28a745;
-    border-color: #28a745;
+    background: linear-gradient(135deg, #2ecc71, #27ae60);
+  }
+  
+  .btn-success:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(46, 204, 113, 0.3);
   }
   
   .btn-warning {
-    background: #ffc107;
-    border-color: #ffc107;
-    color: #212529;
+    background: linear-gradient(135deg, #f39c12, #e67e22);
+    color: white;
+  }
+  
+  .btn-warning:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(243, 156, 18, 0.3);
   }
   
   .btn-info {
-    background: #17a2b8;
-    border-color: #17a2b8;
+    background: linear-gradient(135deg, #00cec9, #0984e3);
+  }
+  
+  .btn-info:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 206, 201, 0.3);
   }
   
   .btn-primary {
-    background: #007bff;
-    border-color: #007bff;
+    background: linear-gradient(135deg, #3498db, #2980b9);
+  }
+  
+  .btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(52, 152, 219, 0.3);
   }
   
   .btn-danger {
-    background: #dc3545;
-    border-color: #dc3545;
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
   }
   
-  .btn:hover {
+  .btn-danger:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(231, 76, 60, 0.3);
+  }
+  
+  .btn-outline-secondary {
+    border: 2px solid #6c757d;
+    color: #6c757d;
+    background: transparent;
+  }
+  
+  .btn-outline-secondary:hover {
+    background: #6c757d;
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(108, 117, 125, 0.3);
+  }
+  
+  .reward-progress .progress {
+    background-color: #e9ecef;
+    border-radius: 5px;
+    overflow: hidden;
+  }
+  
+  .reward-progress .progress-bar {
+    transition: width 0.6s ease;
+  }
+  
+  .modal-content {
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+  }
+  
+  .modal-header {
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    border-radius: 12px 12px 0 0;
+    border-bottom: 2px solid #dee2e6;
+  }
+  
+  .modal-title {
+    color: #2c3e50;
+    font-weight: 600;
+  }
+  
+  .modal-body {
+    padding: 25px;
+  }
+  
+  .modal-footer {
+    border-top: 1px solid #dee2e6;
+    padding: 20px 25px;
+  }
+  
+  .form-control,
+  .form-select {
+    border-radius: 8px;
+    padding: 12px 15px;
+    border: 1px solid #ced4da;
+    transition: all 0.3s;
+  }
+  
+  .form-control:focus,
+  .form-select:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 0 0.25rem rgba(52, 152, 219, 0.25);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
   }
   
-  .border-top {
-    border-top: 1px solid #e9ecef !important;
+  .form-label {
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 8px;
+  }
+  
+  .alert {
+    border-radius: 8px;
+    border: none;
+  }
+  
+  @media (max-width: 768px) {
+    .detail-img-wrapper {
+      height: 300px;
+      margin-bottom: 20px;
+    }
+    
+    .detail-card {
+      padding: 20px !important;
+    }
+    
+    .detail-title {
+      font-size: 1.8rem;
+    }
+    
+    .status-badges .badge {
+      font-size: 0.85rem;
+      padding: 8px 15px;
+    }
+    
+    .owner-actions,
+    .non-owner-actions {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    
+    .btn {
+      width: 100%;
+      margin-bottom: 10px;
+    }
+    
+    .btn-lg {
+      font-size: 1rem;
+      padding: 12px 20px;
+    }
+    
+    .info-row p {
+      padding-left: 0;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    .detail-img-wrapper {
+      height: 250px;
+    }
+    
+    .detail-title {
+      font-size: 1.5rem;
+    }
+    
+    .status-badges {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    
+    .contact-section h4,
+    .owner-section h4,
+    .found-by-section h4 {
+      font-size: 1.3rem;
+    }
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .detail-card {
+    animation: fadeIn 0.5s ease-out;
+  }
+  
+  .detail-img.loading {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+  }
+  
+  @keyframes loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
   }
 </style>
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-
 <script>
-  // Image error handling
-  document.addEventListener('DOMContentLoaded', function() {
-    const images = document.querySelectorAll('.detail-img');
-    images.forEach(img => {
-      img.addEventListener('error', function() {
-        if (!this.src.includes('default.jpg')) {
-          this.src = '/uploads/default.jpg';
-          this.classList.add('no-image');
-        }
-      });
-    });
-    
-    // Set max date to today for date inputs
-    const today = new Date().toISOString().split('T')[0];
-    document.querySelectorAll('input[type="date"]').forEach(input => {
-      if (!input.value) {
-        input.value = today;
+document.addEventListener('DOMContentLoaded', function() {
+  // Set max date to today for date inputs
+  const today = new Date().toISOString().split('T')[0];
+  document.querySelectorAll('input[type="date"]').forEach(input => {
+    if (!input.value) {
+      input.value = today;
+    }
+    input.max = today;
+  });
+  
+  // Simple image error handling
+  const images = document.querySelectorAll('img');
+  images.forEach(img => {
+    img.addEventListener('error', function() {
+      if (!this.src.includes('default')) {
+        this.src = '/images/default-item.jpg';
+        this.classList.add('no-image');
       }
-      input.max = today;
     });
   });
+  
+  // URL parameters to check
+  const urlParams = new URLSearchParams(window.location.search);
+  
+  // Helper function to open modal safely
+  function openModalIfExists(modalId) {
+    const modalElement = document.getElementById(modalId);
+    if (modalElement) {
+      try {
+        const modal = new bootstrap.Modal(modalElement);
+        modal.show();
+        return true;
+      } catch (e) {
+        console.error('Error opening modal:', e);
+      }
+    }
+    return false;
+  }
+  
+  // Check for markFound parameter
+  if (urlParams.has('markFound')) {
+    openModalIfExists('foundItemModal');
+  }
+  
+  // Check for confirmReceipt parameter
+  if (urlParams.has('confirmReceipt')) {
+    openModalIfExists('confirmReceiptModal');
+  }
+  
+  // Check for claimReward parameter
+  if (urlParams.has('claimReward')) {
+    openModalIfExists('claimRewardModal');
+  }
+  
+  // Check for payReward parameter
+  if (urlParams.has('payReward')) {
+    openModalIfExists('payRewardModal');
+  }
+  
+  // Check for confirmReward parameter
+  if (urlParams.has('confirmReward')) {
+    openModalIfExists('confirmRewardModal');
+  }
+  
+  // Check for settle parameter
+  if (urlParams.has('settle')) {
+    openModalIfExists('settleModal');
+  }
+});
 </script>

@@ -1,4 +1,999 @@
 <% layout("layouts/boilerplate") %>
 
-<h2>This is Home Page</h2>
-<p>If you see this, your boilerplate is working!</p>
+<div class="landing-page">
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="container">
+      <div class="hero-content">
+        <div class="tagline">
+          <span class="tag">✦ Trusted Platform</span>
+          <span class="tag">✓ 10,000+ Items Reunited</span>
+        </div>
+        <h1 class="hero-title">
+          <span class="gradient-text">Lost<span class="highlight">&</span>Found</span>
+        </h1>
+        <p class="hero-subtitle">Reuniting people with their precious belongings through community power</p>
+        <p class="hero-description">A secure, intelligent platform where kindness meets technology. Report lost items, discover found treasures, and experience the joy of reunion.</p>
+        <div class="hero-actions">
+          <a href="/items/create" class="btn btn-primary btn-glow">
+            <i class="fas fa-plus-circle"></i> Report Lost Item
+          </a>
+          <a href="/items" class="btn btn-secondary">
+            <i class="fas fa-eye"></i> Browse Found Items
+          </a>
+          <div class="hero-stats">
+            <div class="stat">
+              <i class="fas fa-users"></i>
+              <span>50K+ Community Members</span>
+            </div>
+            <div class="stat">
+              <i class="fas fa-check-circle"></i>
+              <span>92% Success Rate</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="hero-image">
+        <div class="image-wrapper">
+          <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80" alt="Happy person holding found keys">
+          <div class="floating-card">
+            <div class="card-icon">
+              <i class="fas fa-key"></i>
+            </div>
+            <div class="card-content">
+              <h4>Keys Found!</h4>
+              <p>Reunited in 2 hours</p>
+            </div>
+          </div>
+          <div class="floating-card card-2">
+            <div class="card-icon">
+              <i class="fas fa-mobile-alt"></i>
+            </div>
+            <div class="card-content">
+              <h4>Phone Returned</h4>
+              <p>Same day recovery</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section class="how-it-works">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-label">Simple Process</span>
+        <h2 class="section-title">How It <span class="highlight">Works</span></h2>
+        <p class="section-subtitle">Three easy steps to recover what matters most to you</p>
+      </div>
+      
+      <div class="steps-container">
+        <div class="step">
+          <div class="step-visual">
+            <div class="step-number">01</div>
+            <div class="step-icon">
+              <i class="fas fa-edit"></i>
+            </div>
+            <div class="step-line"></div>
+          </div>
+          <div class="step-content">
+            <h3>Report Lost Item</h3>
+            <p>Fill out our detailed form with item description, location, photos, and contact information.</p>
+            <a href="/items/create" class="step-link">Start Report →</a>
+          </div>
+        </div>
+        
+        <div class="step">
+          <div class="step-visual">
+            <div class="step-number">02</div>
+            <div class="step-icon">
+              <i class="fas fa-search-plus"></i>
+            </div>
+            <div class="step-line"></div>
+          </div>
+          <div class="step-content">
+            <h3>Smart Matching</h3>
+            <p>Our AI-powered system scans thousands of found items to find potential matches instantly.</p>
+            <a href="/items" class="step-link">Browse Matches →</a>
+          </div>
+        </div>
+        
+        <div class="step">
+          <div class="step-visual">
+            <div class="step-number">03</div>
+            <div class="step-icon">
+              <i class="fas fa-handshake-alt"></i>
+            </div>
+          </div>
+          <div class="step-content">
+            <h3>Safe Reunion</h3>
+            <p>Connect with the finder through our secure messaging and arrange a safe pickup.</p>
+            <a href="/how-it-works#safety" class="step-link">Safety Tips →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Categories -->
+  <section class="categories">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-label">Popular Categories</span>
+        <h2 class="section-title">Commonly <span class="highlight">Lost Items</span></h2>
+        <p class="section-subtitle">We specialize in finding what people value most</p>
+      </div>
+      
+      <div class="category-grid">
+        <div class="category-card">
+          <div class="category-icon" style="background: linear-gradient(135deg, #FF6B6B, #FF8E53);">
+            <i class="fas fa-key"></i>
+          </div>
+          <h3>Keys</h3>
+          <p>House, car, and office keys with quick recovery</p>
+          <div class="category-stats">1,200+ Found</div>
+        </div>
+        
+        <div class="category-card">
+          <div class="category-icon" style="background: linear-gradient(135deg, #4ECDC4, #44A08D);">
+            <i class="fas fa-mobile-alt"></i>
+          </div>
+          <h3>Electronics</h3>
+          <p>Phones, laptops, tablets with secure returns</p>
+          <div class="category-stats">3,400+ Found</div>
+        </div>
+        
+        <div class="category-card">
+          <div class="category-icon" style="background: linear-gradient(135deg, #FFD166, #FFB347);">
+            <i class="fas fa-wallet"></i>
+          </div>
+          <h3>Wallets & IDs</h3>
+          <p>Secure document and wallet recovery</p>
+          <div class="category-stats">2,800+ Found</div>
+        </div>
+        
+        <div class="category-card">
+          <div class="category-icon" style="background: linear-gradient(135deg, #A78BFA, #7C3AED);">
+            <i class="fas fa-gem"></i>
+          </div>
+          <h3>Jewelry</h3>
+          <p>Sentimental and valuable jewelry items</p>
+          <div class="category-stats">900+ Found</div>
+        </div>
+        
+        <div class="category-card">
+          <div class="category-icon" style="background: linear-gradient(135deg, #06D6A0, #0CB48A);">
+            <i class="fas fa-suitcase"></i>
+          </div>
+          <h3>Bags & Luggage</h3>
+          <p>Backpacks, handbags, and travel luggage</p>
+          <div class="category-stats">1,500+ Found</div>
+        </div>
+        
+        <div class="category-card">
+          <div class="category-icon" style="background: linear-gradient(135deg, #118AB2, #0A6C8F);">
+            <i class="fas fa-paw"></i>
+          </div>
+          <h3>Pets</h3>
+          <p>Lost pets with happy reunion stories</p>
+          <div class="category-stats">500+ Found</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Success Stories -->
+  <section class="success-stories">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-label">Happy Reunions</span>
+        <h2 class="section-title">Success <span class="highlight">Stories</span></h2>
+        <p class="section-subtitle">Real stories from our community members</p>
+      </div>
+      
+      <div class="stories-grid">
+        <div class="story-card">
+          <div class="story-quote">
+            <i class="fas fa-quote-left"></i>
+          </div>
+          <div class="story-content">
+            <p>"I lost my late grandmother's wedding ring during a beach trip. Two weeks later, a kind stranger found it buried in the sand. Lost&Found made the reunion possible!"</p>
+          </div>
+          <div class="story-author">
+            <div class="author-avatar" style="background: linear-gradient(135deg, #FF6B6B, #FF8E53);">
+              <img src="https://images.unsplash.com/photo-1494790108755-2616b786d4d9?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80" alt="Emma">
+            </div>
+            <div class="author-info">
+              <h4>Emma Rodriguez</h4>
+              <p>Miami Beach, FL</p>
+              <div class="story-rating">
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="story-card">
+          <div class="story-quote">
+            <i class="fas fa-quote-left"></i>
+          </div>
+          <div class="story-content">
+            <p>"My work laptop with critical project files was left in a taxi. Thanks to the detailed description I provided, it was matched and returned within 24 hours!"</p>
+          </div>
+          <div class="story-author">
+            <div class="author-avatar" style="background: linear-gradient(135deg, #4ECDC4, #44A08D);">
+              <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80" alt="James">
+            </div>
+            <div class="author-info">
+              <h4>James Chen</h4>
+              <p>San Francisco, CA</p>
+              <div class="story-rating">
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star-half-alt"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="story-card">
+          <div class="story-quote">
+            <i class="fas fa-quote-left"></i>
+          </div>
+          <div class="story-content">
+            <p>"My dog Max ran away during a thunderstorm. Someone found him 3 miles away and used Lost&Found's pet feature to contact me immediately. Forever grateful!"</p>
+          </div>
+          <div class="story-author">
+            <div class="author-avatar" style="background: linear-gradient(135deg, #A78BFA, #7C3AED);">
+              <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80" alt="Sarah">
+            </div>
+            <div class="author-info">
+              <h4>Sarah Johnson</h4>
+              <p>Portland, OR</p>
+              <div class="story-rating">
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="cta-section">
+    <div class="container">
+      <div class="cta-card">
+        <div class="cta-content">
+          <h2>Start Your Recovery Journey Today</h2>
+          <p>Join our community of helpful individuals and increase your chances of finding lost items by 10x.</p>
+          <div class="cta-features">
+            <div class="feature">
+              <i class="fas fa-shield-alt"></i>
+              <span>Secure & Private</span>
+            </div>
+            <div class="feature">
+              <i class="fas fa-bolt"></i>
+              <span>Instant Matching</span>
+            </div>
+            <div class="feature">
+              <i class="fas fa-comments"></i>
+              <span>Built-in Messaging</span>
+            </div>
+          </div>
+          <div class="cta-actions">
+            <a href="/signup" class="btn btn-primary btn-large btn-glow">
+              <i class="fas fa-user-plus"></i> Join Now - It's Free
+            </a>
+            <a href="/items/new" class="btn btn-secondary">
+              <i class="fas fa-search"></i> Report Lost Item
+            </a>
+          </div>
+          <p class="cta-note">No credit card required • 30-second signup</p>
+        </div>
+        <div class="cta-image">
+          <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Happy reunion">
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<style>
+  /* Landing Page Styles */
+  .landing-page {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    color: #333;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+  
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+  
+  /* Hero Section */
+  .hero-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 100px 0;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><path fill="rgba(255,255,255,0.03)" d="M0,500Q250,400,500,500Q750,600,1000,500L1000,1000L0,1000Z"/></svg>');
+    background-size: cover;
+  }
+  
+  .hero-section .container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 60px;
+    position: relative;
+    z-index: 1;
+  }
+  
+  .hero-content {
+    flex: 1;
+    min-width: 300px;
+  }
+  
+  .tagline {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+  }
+  
+  .tag {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    padding: 8px 16px;
+    border-radius: 50px;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  
+  .hero-title {
+    font-size: 4rem;
+    font-weight: 800;
+    margin-bottom: 20px;
+    line-height: 1.1;
+  }
+  
+  .gradient-text {
+    background: linear-gradient(135deg, #fff 0%, #ffd166 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .hero-title .highlight {
+    color: #ffd166;
+  }
+  
+  .hero-subtitle {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+    font-weight: 300;
+    opacity: 0.95;
+    max-width: 600px;
+  }
+  
+  .hero-description {
+    font-size: 1.1rem;
+    margin-bottom: 40px;
+    opacity: 0.9;
+    max-width: 600px;
+  }
+  
+  .hero-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 16px 32px;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .btn-primary {
+    background: linear-gradient(135deg, #ffd166 0%, #ffb347 100%);
+    color: #333;
+    box-shadow: 0 4px 20px rgba(255, 209, 102, 0.3);
+  }
+  
+  .btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(255, 209, 102, 0.4);
+  }
+  
+  .btn-glow {
+    animation: pulse 2s infinite;
+  }
+  
+  .btn-secondary {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(10px);
+  }
+  
+  .btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-3px);
+    border-color: white;
+  }
+  
+  .btn-large {
+    padding: 18px 36px;
+    font-size: 1.1rem;
+  }
+  
+  .hero-stats {
+    display: flex;
+    gap: 30px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+  }
+  
+  .stat {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    opacity: 0.9;
+  }
+  
+  .stat i {
+    color: #ffd166;
+  }
+  
+  .hero-image {
+    flex: 1;
+    min-width: 300px;
+    position: relative;
+  }
+  
+  .image-wrapper {
+    position: relative;
+  }
+  
+  .image-wrapper img {
+    width: 100%;
+    border-radius: 20px;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+  }
+  
+  .floating-card {
+    position: absolute;
+    bottom: 30px;
+    left: -30px;
+    background: white;
+    border-radius: 16px;
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    animation: float 3s ease-in-out infinite;
+  }
+  
+  .card-2 {
+    top: 30px;
+    right: -30px;
+    left: auto;
+    animation-delay: 1s;
+  }
+  
+  .card-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+  }
+  
+  .card-content h4 {
+    margin: 0;
+    font-size: 1rem;
+    color: #333;
+  }
+  
+  .card-content p {
+    margin: 4px 0 0;
+    font-size: 0.85rem;
+    color: #666;
+  }
+  
+  /* Section Common Styles */
+  .section-header {
+    text-align: center;
+    margin-bottom: 60px;
+  }
+  
+  .section-label {
+    display: inline-block;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 8px 20px;
+    border-radius: 50px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+  }
+  
+  .section-title {
+    font-size: 3rem;
+    margin-bottom: 15px;
+    color: #333;
+  }
+  
+  .section-title .highlight {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .section-subtitle {
+    font-size: 1.2rem;
+    color: #666;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+  
+  /* How It Works */
+  .how-it-works {
+    padding: 120px 0;
+    background: #f8fafc;
+  }
+  
+  .steps-container {
+    display: flex;
+    flex-direction: column;
+    gap: 60px;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  
+  .step {
+    display: flex;
+    gap: 40px;
+    align-items: flex-start;
+  }
+  
+  .step-visual {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 100px;
+  }
+  
+  .step-number {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #667eea;
+    opacity: 0.3;
+    margin-bottom: 10px;
+  }
+  
+  .step-icon {
+    width: 70px;
+    height: 70px;
+    background: white;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    color: #667eea;
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.15);
+    border: 2px solid rgba(102, 126, 234, 0.1);
+  }
+  
+  .step-line {
+    width: 2px;
+    height: 60px;
+    background: linear-gradient(to bottom, #667eea, transparent);
+    margin-top: 20px;
+  }
+  
+  .step:last-child .step-line {
+    display: none;
+  }
+  
+  .step-content {
+    flex: 1;
+  }
+  
+  .step-content h3 {
+    font-size: 1.8rem;
+    margin-bottom: 15px;
+    color: #333;
+  }
+  
+  .step-content p {
+    color: #666;
+    margin-bottom: 20px;
+    font-size: 1.1rem;
+  }
+  
+  .step-link {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: gap 0.3s ease;
+  }
+  
+  .step-link:hover {
+    gap: 10px;
+  }
+  
+  /* Categories */
+  .categories {
+    padding: 120px 0;
+    background: white;
+  }
+  
+  .category-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+  }
+  
+  .category-card {
+    background: white;
+    border-radius: 20px;
+    padding: 40px 30px;
+    text-align: center;
+    border: 1px solid #e2e8f0;
+    transition: all 0.4s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .category-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    transform: scaleX(0);
+    transition: transform 0.4s ease;
+  }
+  
+  .category-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(102, 126, 234, 0.1);
+    border-color: transparent;
+  }
+  
+  .category-card:hover::before {
+    transform: scaleX(1);
+  }
+  
+  .category-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    color: white;
+    margin: 0 auto 25px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  }
+  
+  .category-card h3 {
+    font-size: 1.5rem;
+    margin-bottom: 12px;
+    color: #333;
+  }
+  
+  .category-card p {
+    color: #666;
+    margin-bottom: 20px;
+    font-size: 1rem;
+  }
+  
+  .category-stats {
+    display: inline-block;
+    background: #f8fafc;
+    color: #667eea;
+    padding: 6px 16px;
+    border-radius: 50px;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+  
+  /* Success Stories */
+  .success-stories {
+    padding: 120px 0;
+    background: #f8fafc;
+  }
+  
+  .stories-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+  }
+  
+  .story-card {
+    background: white;
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease;
+    position: relative;
+  }
+  
+  .story-card:hover {
+    transform: translateY(-5px);
+  }
+  
+  .story-quote {
+    font-size: 2rem;
+    color: #667eea;
+    opacity: 0.2;
+    margin-bottom: 20px;
+  }
+  
+  .story-content {
+    font-size: 1.1rem;
+    color: #555;
+    line-height: 1.8;
+    margin-bottom: 30px;
+    font-style: italic;
+  }
+  
+  .story-author {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+  
+  .author-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    overflow: hidden;
+  }
+  
+  .author-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .author-info h4 {
+    margin: 0;
+    color: #333;
+    font-size: 1.1rem;
+  }
+  
+  .author-info p {
+    margin: 5px 0;
+    color: #777;
+    font-size: 0.9rem;
+  }
+  
+  .story-rating {
+    color: #ffd166;
+    font-size: 0.9rem;
+  }
+  
+  /* CTA Section */
+  .cta-section {
+    padding: 120px 0;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+  }
+  
+  .cta-card {
+    background: white;
+    border-radius: 30px;
+    padding: 60px;
+    display: flex;
+    gap: 60px;
+    align-items: center;
+    box-shadow: 0 40px 80px rgba(0, 0, 0, 0.1);
+  }
+  
+  .cta-content {
+    flex: 1;
+    color: #333;
+  }
+  
+  .cta-content h2 {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+    color: #333;
+  }
+  
+  .cta-content p {
+    font-size: 1.2rem;
+    color: #666;
+    margin-bottom: 30px;
+  }
+  
+  .cta-features {
+    display: flex;
+    gap: 20px;
+    margin: 30px 0;
+    flex-wrap: wrap;
+  }
+  
+  .feature {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #f8fafc;
+    padding: 10px 20px;
+    border-radius: 50px;
+    font-weight: 500;
+    color: #667eea;
+  }
+  
+  .feature i {
+    font-size: 0.9rem;
+  }
+  
+  .cta-actions {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  
+  .cta-note {
+    font-size: 0.9rem;
+    color: #777;
+  }
+  
+  .cta-image {
+    flex: 1;
+  }
+  
+  .cta-image img {
+    width: 100%;
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Animations */
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+  
+  @keyframes pulse {
+    0%, 100% {
+      box-shadow: 0 4px 20px rgba(255, 209, 102, 0.3);
+    }
+    50% {
+      box-shadow: 0 4px 30px rgba(255, 209, 102, 0.6);
+    }
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 992px) {
+    .hero-section .container,
+    .cta-card {
+      flex-direction: column;
+    }
+    
+    .hero-title {
+      font-size: 3rem;
+    }
+    
+    .step {
+      flex-direction: column;
+      text-align: center;
+      gap: 20px;
+    }
+    
+    .step-visual {
+      width: 100%;
+    }
+    
+    .step-line {
+      display: none;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .hero-title {
+      font-size: 2.5rem;
+    }
+    
+    .section-title {
+      font-size: 2.2rem;
+    }
+    
+    .category-grid,
+    .stories-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .cta-card {
+      padding: 40px 30px;
+    }
+    
+    .hero-section,
+    .how-it-works,
+    .categories,
+    .success-stories,
+    .cta-section {
+      padding: 80px 0;
+    }
+    
+    .floating-card {
+      position: relative;
+      left: 0;
+      bottom: -30px;
+      width: fit-content;
+      margin: 20px auto 0;
+    }
+    
+    .card-2 {
+      top: auto;
+      right: auto;
+      margin-top: 20px;
+    }
+  }
+</style>
+
+<!-- Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">

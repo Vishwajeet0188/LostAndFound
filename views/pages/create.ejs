@@ -6,6 +6,7 @@
     background: linear-gradient(135deg, #dbeafe, #ffffff, #e0f2fe);
     background-size: 300% 300%;
     animation: gradientMove 12s ease infinite;
+    min-height: 100vh;
   }
 
   @keyframes gradientMove {
@@ -33,7 +34,11 @@
     color: #0d6efd;
   }
 
-  .form-label { font-weight: 600; }
+  .form-label { 
+    font-weight: 600;
+    margin-bottom: 8px;
+    display: block;
+  }
 
   .form-control,
   .form-select,
@@ -56,6 +61,7 @@
 
   textarea {
     height: 140px;
+    resize: vertical;
   }
 
   .btn-primary {
@@ -72,84 +78,277 @@
     transform: translateY(-3px);
     box-shadow: 0 10px 22px rgba(13,110,253,0.35);
   }
+
+  /* Required field indicator */
+  .required::after {
+    content: " *";
+    color: #dc3545;
+  }
 </style>
 
 <div class="form-container">
 
   <div class="form-title">Lost Item Report Form</div>
 
+ 
+
   <form method="POST" action="/items" enctype="multipart/form-data" class="row g-3">
 
     <!-- Item Name -->
     <div class="col-12">
-      <label class="form-label">Enter Item Name</label>
-      <input type="text" name="title" placeholder="Enter Item" class="form-control" required>
+      <label class="form-label required">Item Name</label>
+      <input type="text" name="title" placeholder="e.g., iPhone 13, Wallet, Keys, etc." class="form-control" required>
     </div>
 
     <!-- Description -->
     <div class="col-12">
-      <label class="form-label">Description</label>
-      <textarea name="description" class="form-control" placeholder="Write about your item..."></textarea>
+      <label class="form-label required">Description</label>
+      <textarea name="description" id="description" class="form-control" placeholder="Describe your item in detail (color, brand, distinguishing features, contents if any)..." required></textarea>
+      <div class="mt-2">
+        <button type="button" id="enhanceBtn" class="btn btn-outline-primary btn-sm">
+          <i class="fas fa-magic"></i> Enhance with AI
+        </button>
+
+        <small class="text-muted ms-2">Let AI improve your description</small>
+      </div>
     </div>
 
     <!-- Location -->
     <div class="col-12">
-      <label class="form-label">Where You Last Spotted Your Item</label>
-      <input type="text" name="location" placeholder="Block, room, area..." class="form-control">
+      <label class="form-label required">Last Known Location</label>
+      <input type="text" name="location" placeholder="e.g., Library Block A, Room 203, Cafeteria, Parking Lot..." class="form-control" required>
     </div>
-
 
     <!-- Category -->
     <div class="col-12">
-      <label class="form-label">Category</label>
-      <select name="category" class="form-select">
-        <option disabled selected>Choose...</option>
-        <option>Electronics</option>
-        <option>Cosmetic</option>
-        <option>Books</option>
-        <option>Documents</option>
-        <option>Accessories</option>
-        <option>Any Other</option>
+      <label class="form-label required">Category</label>
+      <select name="category" class="form-select" required>
+        <option value="" disabled selected>Select a category...</option>
+        <option value="Electronics">Electronics</option>
+        <option value="Documents">Documents</option>
+        <option value="Jewelry">Jewelry</option>
+        <option value="Clothing">Clothing</option>
+        <option value="Keys">Keys</option>
+        <option value="Wallet">Wallet/Purse</option>
+        <option value="Books">Books</option>
+        <option value="Accessories">Accessories</option>
+        <option value="Other">Other</option>
       </select>
     </div>
 
+    <!-- Status (Hidden Field) -->
+    <input type="hidden" name="status" value="lost">
+
     <!-- Reward -->
     <div class="col-12">
-      <label class="form-label">Reward (optional)</label>
-      <input type="number" name="reward" placeholder="Enter Reward Amount" class="form-control">
+      <label class="form-label">Reward (Optional)</label>
+      <div class="input-group">
+        <span class="input-group-text">₹</span>
+        <input type="number" name="reward" placeholder="Reward amount for finder" class="form-control" min="0" step="100">
+      </div>
+      <small class="text-muted">Leave empty if no reward offered</small>
     </div>
 
     <!-- IMAGE UPLOAD -->
     <div class="col-12">
-      <label class="form-label">Upload Item Image (optional)</label>
+      <label class="form-label">Item Image (Optional)</label>
       <input
         type="file"
         name="image"
         accept="image/*"
         class="form-control">
+      <small class="text-muted">Upload a clear photo of the item (max 5MB, JPG/PNG/WebP)</small>
     </div>
 
-        <!-- CONTACT DETAILS -->
+    <!-- CONTACT DETAILS -->
     <div class="col-12">
+      <h6 class="mt-4 mb-3 text-primary">Contact Information</h6>
+    </div>
+
+    <div class="col-md-6">
       <label class="form-label">Your Name</label>
-      <input type="text" name="contactName" placeholder="Enter your name" class="form-control">
+      <input type="text" name="contactName" 
+       placeholder="Enter your name" 
+       class="form-control" 
+       value="<%= user ? user.name : '' %>">
     </div>
 
-    <div class="col-12">
+    <div class="col-md-6">
       <label class="form-label">Phone Number</label>
-      <input type="text" name="contactPhone" placeholder="Enter your phone / WhatsApp" class="form-control">
+      <input type="text" name="contactPhone" 
+       placeholder="Enter your phone / WhatsApp" 
+       class="form-control"
+       value="<%= user ? user.phone : '' %>">
     </div>
 
     <div class="col-12">
-      <label class="form-label">Email (optional)</label>
-      <input type="email" name="contactEmail" placeholder="Enter your email" class="form-control">
+      <label class="form-label">Email (Optional)</label>
+      <input type="email" name="contactEmail" 
+       placeholder="Enter your email" 
+       class="form-control"
+       value="<%= user ? user.email : '' %>">
     </div>
-
 
     <!-- Submit -->
-    <div class="col-12">
-      <button type="submit" class="btn btn-primary w-100">Submit</button>
+    <div class="col-12 mt-4">
+      <button type="submit" class="btn btn-primary w-100">Submit Lost Item Report</button>
+    </div>
+
+    <div class="col-12 text-center mt-3">
+      <a href="/items" class="text-decoration-none">
+        <i class="fas fa-arrow-left me-1"></i> Back to Items List
+      </a>
     </div>
 
   </form>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Form validation (keep this)
+  const form = document.querySelector('form');
+  form.addEventListener('submit', function(e) {
+    const title = document.querySelector('input[name="title"]').value.trim();
+    const description = document.querySelector('textarea[name="description"]').value.trim();
+    const location = document.querySelector('input[name="location"]').value.trim();
+    const category = document.querySelector('select[name="category"]').value;
+    
+    if (!title || !description || !location || !category) {
+      e.preventDefault();
+      alert('Please fill in all required fields (marked with *)');
+      return false;
+    }
+  });
+
+  // Preview image before upload (optional - keep this)
+  const fileInput = document.querySelector('input[name="image"]');
+  fileInput.addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        alert('File size must be less than 5MB');
+        e.target.value = '';
+        return;
+      }
+      
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+      if (!allowedTypes.includes(file.type)) {
+        alert('Only image files (JPG, PNG, WebP, GIF) are allowed');
+        e.target.value = '';
+        return;
+      }
+    }
+  });
+
+  // === AI ENHANCE BUTTON - WORKING VERSION ===
+  const enhanceBtn = document.getElementById('enhanceBtn');
+  
+  enhanceBtn.addEventListener('click', async function() {
+    // Get the description textarea
+    const textarea = document.querySelector('textarea[name="description"]');
+    let originalText = textarea.value;
+    
+    // Remove any test text
+    originalText = originalText.replace(/\[TEST:.*?\]/g, '').trim();
+    
+    if (!originalText) {
+      alert('Please enter a description first');
+      return;
+    }
+    
+    // Save original button state
+    const originalHTML = this.innerHTML;
+    const originalTextColor = this.style.color;
+    
+    // Show loading state
+    this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enhancing...';
+    this.disabled = true;
+    this.style.opacity = '0.7';
+    
+    try {
+      // Call your AI API
+      const response = await fetch('/api/ai/enhance-description', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text: originalText })
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Server responded with ${response.status}`);
+      }
+      
+      const result = await response.json();
+      
+      // Update textarea with enhanced text
+      if (result.enhanced) {
+        textarea.value = result.enhanced;
+        
+        // Show success message
+        showMessage('success', '✓ Description enhanced successfully!');
+      } else {
+        throw new Error('No enhanced text in response');
+      }
+      
+    } catch (error) {
+      console.error('AI Enhancement Error:', error);
+      
+      // Fallback mock enhancement
+      const mockEnhanced = getMockEnhancement(originalText);
+      textarea.value = mockEnhanced;
+      
+      showMessage('info', '⚠ Using mock enhancement. Add OpenAI API for real AI.');
+    } finally {
+      // Restore button
+      this.innerHTML = originalHTML;
+      this.disabled = false;
+      this.style.opacity = '1';
+    }
+  });
+  
+  // Helper function to show messages
+  function showMessage(type, text) {
+    // Remove any existing messages
+    const existing = document.querySelectorAll('.ai-message');
+    existing.forEach(el => el.remove());
+    
+    // Create new message
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `alert alert-${type} ai-message mt-2 alert-dismissible fade show`;
+    messageDiv.innerHTML = `
+      ${text}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    // Insert after the enhance button
+    const buttonContainer = document.querySelector('.mt-2');
+    buttonContainer.appendChild(messageDiv);
+  }
+  
+  // Mock enhancement function (fallback)
+  function getMockEnhancement(text) {
+    const enhancements = {
+      'wallet': 'leather wallet with multiple card slots, cash compartment, and ID window',
+      'phone': 'smartphone with protective case, screen protector, and specific scratches on the back',
+      'key': 'keychain with multiple keys and a distinctive key fob or tag',
+      'book': 'textbook with notes in margins, bookmarks, and cover wear patterns',
+      'bag': 'backpack/laptop bag with specific compartments, stickers, or wear marks'
+    };
+    
+    let enhanced = text;
+    for (const [keyword, enhancement] of Object.entries(enhancements)) {
+      if (text.toLowerCase().includes(keyword)) {
+        enhanced = `${text}\n\nAI Enhanced: ${enhancement} - please provide detailed color, brand, and distinguishing features for better identification.`;
+        break;
+      }
+    }
+    
+    if (enhanced === text) {
+      enhanced = `${text}\n\nAI Enhanced: Please provide more details like color, brand, size, material, and any distinguishing marks or contents.`;
+    }
+    
+    return enhanced;
+  }
+});
+</script>

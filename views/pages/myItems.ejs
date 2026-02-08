@@ -1,346 +1,598 @@
 <% layout("layouts/boilerplate") %>
 
-<div class="container my-items-page mt-4">
+<div class="container my-items-page mt-5">
 
-  <h2 class="page-title mb-4">
-    <i class="fas fa-user me-2"></i> My Items
-  </h2>
+  <!-- Page Header -->
+  <div class="page-header mb-5">
+    <div class="d-flex justify-content-between align-items-center">
+      <div>
+        <h1 class="page-title">My Items</h1>
+        <p class="text-muted">Manage your lost and found items</p>
+      </div>
+      <a href="/dashboard" class="btn btn-light">
+        <i class="fas fa-arrow-left me-2"></i>Dashboard
+      </a>
+    </div>
+  </div>
 
-  <!-- TABS -->
-  <ul class="nav nav-tabs mb-4">
-    <li class="nav-item">
-      <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#listed">
-        My Listed Items
+  <!-- Tabs -->
+  <div class="tabs-container mb-4">
+    <div class="d-flex border-bottom">
+      <button class="tab-btn active" data-target="listed">
+        <i class="fas fa-box me-2"></i>
+        My Items (<%= myItems.length %>)
       </button>
-    </li>
-    <li class="nav-item">
-      <button class="nav-link" data-bs-toggle="tab" data-bs-target="#reported">
-        Items I Reported
+      <button class="tab-btn" data-target="reported">
+        <i class="fas fa-search me-2"></i>
+        Found Items (<%= reportedItems.length %>)
       </button>
-    </li>
-  </ul>
+    </div>
+  </div>
 
-  <div class="tab-content">
-
-    <!-- ================= LISTED ITEMS ================= -->
-    <div class="tab-pane fade show active" id="listed">
-
-      <% if (myItems.length === 0) { %>
-        <div class="empty-state text-center">
+  <!-- Listed Items -->
+  <div class="tab-content active" id="listed">
+    <% if (myItems.length === 0) { %>
+      <div class="empty-state">
+        <div class="empty-icon">
           <i class="fas fa-box-open"></i>
-          <h4>No items listed yet</h4>
-          <p>You haven’t listed any items.</p>
-          <a href="/items/create" class="btn btn-primary mt-2">+ Add Item</a>
         </div>
-      <% } else { %>
-
-        <div class="row">
-          <% myItems.forEach(item => { %>
-            <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 mb-4">
-
-              <div class="item-card">
-
-                <span class="status-badge <%= item.status %>">
-                  <%= item.status.toUpperCase() %>
-                </span>
-
-               <div class="item-img-wrapper">
-                <img src="<%= item.image %>" alt="<%= item.title %>">
-              </div>
-
-
-                <div class="item-body">
-                  <h5><%= item.title %></h5>
-                  <p class="location">
-                    <i class="fas fa-map-marker-alt"></i> <%= item.location %>
-                  </p>
-                  <a href="/items/<%= item._id %>" class="btn btn-outline-primary btn-sm">
-                    View Details
-                  </a>
+        <h3>No items yet</h3>
+        <p class="text-muted">You haven't listed any items</p>
+        <a href="/items/create" class="btn btn-primary mt-3">
+          <i class="fas fa-plus me-2"></i>Report First Item
+        </a>
+      </div>
+    <% } else { %>
+      <div class="items-grid">
+        <% myItems.forEach(item => { %>
+          <div class="item-card">
+            <!-- Card Header -->
+            <div class="card-header">
+              <% if (item.image) { %>
+                <div class="item-image">
+                  <img src="<%= item.image %>" alt="<%= item.title %>" 
+                    onerror="this.onerror=null; this.src='https://via.placeholder.com/300x200/e9ecef/6c757d?text=No+Image'">
                 </div>
-
+              <% } else { %>
+                <div class="item-image no-image">
+                  <i class="fas fa-image"></i>
+                </div>
+              <% } %>
+              
+              <div class="item-status <%= item.status || 'lost' %>">
+                <%= (item.status || 'lost').toUpperCase() %>
               </div>
             </div>
-          <% }) %>
-        </div>
 
-      <% } %>
-
-    </div>
-
-    <!-- ================= REPORTED ITEMS ================= -->
-    <div class="tab-pane fade" id="reported">
-
-      <% if (reportedItems.length === 0) { %>
-        <div class="empty-state text-center">
-          <i class="fas fa-search"></i>
-          <h4>No reported items</h4>
-          <p>You haven’t reported any found items.</p>
-        </div>
-      <% } else { %>
-
-        <div class="row">
-          <% reportedItems.forEach(item => { %>
-            <div class="col-md-4 mb-4">
-              <div class="item-card">
-
-                <span class="status-badge found">FOUND</span>
-
-                <div class="item-img-wrapper">  <!-- ADD THIS WRAPPER -->
-                  <img src="<%= item.image %>" alt="<%= item.title %>">
+            <!-- Card Body -->
+            <div class="card-body">
+              <h4 class="item-title"><%= item.title %></h4>
+              
+              <div class="item-details">
+                <div class="detail-item">
+                  <i class="fas fa-tag"></i>
+                  <span><%= item.category || 'Uncategorized' %></span>
                 </div>
-
-                <div class="item-body">
-                  <h5><%= item.title %></h5>
-                  <p class="location">
-                    <i class="fas fa-map-marker-alt"></i> <%= item.location %>
-                  </p>
-                  <div class="card-actions">
-                    <a href="/items/<%= item._id %>" class="btn btn-outline-primary btn-sm">
-                      View Details
-                    </a>
+                <div class="detail-item">
+                  <i class="fas fa-map-marker-alt"></i>
+                  <span><%= item.location || 'Unknown location' %></span>
+                </div>
+                <div class="detail-item">
+                  <i class="fas fa-calendar"></i>
+                  <span><%= new Date(item.createdAt).toLocaleDateString() %></span>
+                </div>
+                <% if (item.reward && item.reward > 0) { %>
+                  <div class="detail-item reward">
+                    <i class="fas fa-gift"></i>
+                    <span>Reward: ₹<%= item.reward %></span>
                   </div>
-                </div>
+                <% } %>
+              </div>
 
+              <!-- Actions -->
+              <div class="card-actions">
+                <a href="/items/<%= item._id %>" class="btn btn-sm btn-outline">
+                  <i class="fas fa-eye me-1"></i>View
+                </a>
+                <% if (user && item.owner && user._id.toString() === item.owner.toString()) { %>
+                  <a href="/items/<%= item._id %>/edit" class="btn btn-sm btn-outline">
+                    <i class="fas fa-edit me-1"></i>Edit
+                  </a>
+                <% } %>
               </div>
             </div>
-          <% }) %>
+          </div>
+        <% }) %>
+      </div>
+    <% } %>
+  </div>
+
+  <!-- Reported Items -->
+  <div class="tab-content" id="reported" style="display: none;">
+    <% if (reportedItems.length === 0) { %>
+      <div class="empty-state">
+        <div class="empty-icon">
+          <i class="fas fa-search"></i>
         </div>
+        <h3>No found items</h3>
+        <p class="text-muted">You haven't reported any found items</p>
+        <a href="/items" class="btn btn-outline mt-3">
+          <i class="fas fa-search me-2"></i>Browse Items
+        </a>
+      </div>
+    <% } else { %>
+      <div class="items-grid">
+        <% reportedItems.forEach(item => { %>
+          <div class="item-card">
+            <!-- Card Header -->
+            <div class="card-header">
+              <% if (item.image) { %>
+                <div class="item-image">
+                  <img src="<%= item.image %>" alt="<%= item.title %>" 
+                    onerror="this.onerror=null; this.src='https://via.placeholder.com/300x200/e9ecef/6c757d?text=No+Image'">
+                </div>
+              <% } else { %>
+                <div class="item-image no-image">
+                  <i class="fas fa-image"></i>
+                </div>
+              <% } %>
+              
+              <div class="item-status found">FOUND</div>
+              
+              <% if (item.owner && typeof item.owner === 'object') { %>
+                <div class="item-owner">
+                  <i class="fas fa-user me-1"></i>
+                  <%= item.owner.name || 'Owner' %>
+                </div>
+              <% } %>
+            </div>
 
-      <% } %>
+            <!-- Card Body -->
+            <div class="card-body">
+              <h4 class="item-title"><%= item.title %></h4>
+              
+              <div class="item-details">
+                <div class="detail-item">
+                  <i class="fas fa-tag"></i>
+                  <span><%= item.category || 'Uncategorized' %></span>
+                </div>
+                <div class="detail-item">
+                  <i class="fas fa-map-marker-alt"></i>
+                  <span><%= item.location || 'Unknown location' %></span>
+                </div>
+                <div class="detail-item">
+                  <i class="fas fa-calendar"></i>
+                  <span><%= new Date(item.createdAt).toLocaleDateString() %></span>
+                </div>
+                <% if (item.reward && item.reward > 0) { %>
+                  <div class="reward-status">
+                    <i class="fas fa-gift"></i>
+                    <span>Reward: ₹<%= item.reward %></span>
+                    <% if (item.rewardPaid) { %>
+                      <span class="status-badge paid">Paid</span>
+                    <% } else if (item.rewardRequested) { %>
+                      <span class="status-badge requested">Requested</span>
+                    <% } else if (item.rewardConfirmed) { %>
+                      <span class="status-badge confirmed">Confirmed</span>
+                    <% } %>
+                  </div>
+                <% } %>
+              </div>
 
-    </div>
-
+              <!-- Actions -->
+              <div class="card-actions">
+                <a href="/items/<%= item._id %>" class="btn btn-sm btn-outline">
+                  <i class="fas fa-eye me-1"></i>View Details
+                </a>
+              </div>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    <% } %>
   </div>
 </div>
 
 <style>
-.my-items-page {
-  min-height: 70vh;
-}
+  /* Reset & Base */
+  .my-items-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+  }
 
-/* Title */
-.page-title {
-  font-weight: 700;
-  color: #2d2f48;
-  border-bottom: 3px solid #667eea;
-  padding-bottom: 10px;
-  display: inline-block;
-}
+  /* Page Header */
+  .page-header {
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eaeaea;
+  }
 
-/* Tabs */
-.nav-tabs {
-  border-bottom: 2px solid #dee2e6;
-  margin-bottom: 25px;
-}
+  .page-title {
+    font-size: 28px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 5px;
+  }
 
-.nav-tabs .nav-link {
-  border: none;
-  color: #6c757d;
-  font-weight: 600;
-  padding: 12px 24px;
-  border-radius: 8px 8px 0 0;
-  margin-right: 5px;
-  transition: all 0.3s ease;
-}
+  /* Tabs */
+  .tabs-container {
+    border-radius: 8px;
+    overflow: hidden;
+  }
 
-.nav-tabs .nav-link:hover {
-  color: #667eea;
-  background: #f8f9fa;
-}
+  .tab-btn {
+    flex: 1;
+    padding: 15px 20px;
+    border: none;
+    background: #f8f9fa;
+    color: #666;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-bottom: 3px solid transparent;
+  }
 
-.nav-tabs .nav-link.active {
-  background: #667eea;
-  color: white;
-  border-radius: 8px 8px 0 0;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-}
+  .tab-btn:hover {
+    background: #e9ecef;
+    color: #333;
+  }
 
-/* Empty State */
-.empty-state {
-  background: linear-gradient(135deg, #f8f9ff, #eef1ff);
-  padding: 60px 30px;
-  border-radius: 16px;
-  border: 2px dashed #667eea;
-  text-align: center;
-  margin: 40px 0;
-}
+  .tab-btn.active {
+    background: #fff;
+    color: #007bff;
+    border-bottom-color: #007bff;
+  }
 
-.empty-state i {
-  font-size: 48px;
-  color: #667eea;
-  margin-bottom: 20px;
-}
+  /* Empty State */
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    background: #f8f9fa;
+    border-radius: 12px;
+    margin: 40px 0;
+  }
 
-.empty-state h4 {
-  color: #2d2f48;
-  margin-bottom: 10px;
-}
+  .empty-icon {
+    font-size: 64px;
+    color: #adb5bd;
+    margin-bottom: 20px;
+  }
 
-/* Card Container */
-.row {
-  margin: 0 -10px;
-}
+  .empty-state h3 {
+    color: #495057;
+    margin-bottom: 10px;
+  }
 
-.col-xl-3, .col-lg-4, .col-md-6, .col-sm-12 {
-  padding: 10px;
-}
+  /* Grid Layout */
+  .items-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 25px;
+    margin-top: 20px;
+  }
 
-/* Card Styling - IMPROVED */
-.item-card {
-  background: white;
-  border-radius: 16px;
-  overflow: hidden;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
-  border: 1px solid #e9ecef;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-}
+  /* Item Card */
+  .item-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: 1px solid #eaeaea;
+  }
 
-.item-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 15px 35px rgba(102, 126, 234, 0.25);
-  border-color: #667eea;
-}
+  .item-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+  }
 
-/* Image Wrapper - Balanced */
-.item-img-wrapper {
-  height: 170px;
-  background: #f8f9fa;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 15px;
-  border-radius: 8px 8px 0 0;
-  margin: 8px;
-}
-
-.item-img-wrapper img {
-  max-height: 140px; /* Fixed max height */
-  max-width: 90%;
-  object-fit: contain;
-  border-radius: 4px;
-  transition: transform 0.3s ease;
-}
-
-.item-card:hover .item-img-wrapper img {
-  transform: scale(1.05);
-}
-/* Card Body - IMPROVED */
-.item-body {
-  padding: 20px;
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-.item-body h5 {
-  font-weight: 700;
-  color: #2d2f48;
-  margin-bottom: 8px;
-  font-size: 1.1rem;
-  line-height: 1.3;
-  min-height: 2.6em;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-}
-
-.location {
-  font-size: 0.9rem;
-  color: #6c757d;
-  margin-bottom: 15px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.location i {
-  color: #667eea;
-}
-
-/* Status Badge - IMPROVED */
-.status-badge {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  padding: 6px 14px;
-  font-size: 10px;
-  font-weight: 700;
-  border-radius: 20px;
-  color: white;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  z-index: 10;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
-}
-
-.status-badge.lost {
-  background: linear-gradient(135deg, #ff6b6b, #ff4757);
-}
-
-.status-badge.found {
-  background: linear-gradient(135deg, #2ecc71, #27ae60);
-}
-
-/* Button - IMPROVED */
-.btn-outline-primary {
-  border: 2px solid #667eea;
-  color: #667eea;
-  font-weight: 600;
-  padding: 8px 20px;
-  border-radius: 8px;
-  transition: all 0.3s ease;
-  margin-top: auto;
-  align-self: flex-start;
-}
-
-.btn-outline-primary:hover {
-  background: #667eea;
-  color: white;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 15px rgba(102, 126, 234, 0.4);
-}
-
-/* Card Actions */
-.card-actions {
-  margin-top: auto;
-  padding-top: 15px;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .item-img-wrapper {
+  /* Card Header */
+  .card-header {
+    position: relative;
     height: 180px;
+    overflow: hidden;
   }
-  
-  .item-body {
-    padding: 15px;
-  }
-  
-  .nav-tabs .nav-link {
-    padding: 10px 15px;
-    font-size: 0.9rem;
-  }
-}
-</style>
 
+  .item-image {
+    width: 100%;
+    height: 100%;
+    background: #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .item-image img {
+    width: 50%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .item-image.no-image {
+    color: #adb5bd;
+    font-size: 48px;
+  }
+
+  /* Status Badge */
+  .item-status {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .item-status.lost {
+    background: #dc3545;
+  }
+
+  .item-status.found {
+    background: #28a745;
+  }
+
+  /* Owner Info */
+  .item-owner {
+    position: absolute;
+    bottom: 15px;
+    left: 15px;
+    background: rgba(0, 123, 255, 0.9);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 500;
+  }
+
+  /* Card Body */
+  .card-body {
+    padding: 20px;
+  }
+
+  .item-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 15px;
+    line-height: 1.3;
+  }
+
+  /* Details */
+  .item-details {
+    margin-bottom: 20px;
+  }
+
+  .detail-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+    color: #666;
+    font-size: 14px;
+  }
+
+  .detail-item i {
+    width: 16px;
+    color: #007bff;
+  }
+
+  .detail-item.reward {
+    color: #28a745;
+    font-weight: 500;
+  }
+
+  .detail-item.reward i {
+    color: #28a745;
+  }
+
+  /* Reward Status */
+  .reward-status {
+    background: #fff3cd;
+    padding: 10px;
+    border-radius: 6px;
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+  }
+
+  .status-badge {
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    color: white;
+  }
+
+  .status-badge.paid {
+    background: #28a745;
+  }
+
+  .status-badge.requested {
+    background: #ffc107;
+    color: #212529;
+  }
+
+  .status-badge.confirmed {
+    background: #17a2b8;
+  }
+
+  /* Actions */
+  .card-actions {
+    display: flex;
+    gap: 10px;
+    padding-top: 15px;
+    border-top: 1px solid #eaeaea;
+  }
+
+  .btn {
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .btn-primary {
+    background: #007bff;
+    color: white;
+    border: none;
+  }
+
+  .btn-primary:hover {
+    background: #0056b3;
+    transform: translateY(-2px);
+  }
+
+  .btn-outline {
+    background: transparent;
+    color: #007bff;
+    border: 1px solid #007bff;
+  }
+
+  .btn-outline:hover {
+    background: #007bff;
+    color: white;
+  }
+
+  .btn-light {
+    background: #f8f9fa;
+    color: #495057;
+    border: 1px solid #dee2e6;
+  }
+
+  .btn-light:hover {
+    background: #e9ecef;
+  }
+
+  .btn-sm {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .my-items-page {
+      padding: 15px;
+    }
+
+    .items-grid {
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 20px;
+    }
+
+    .page-title {
+      font-size: 24px;
+    }
+
+    .tab-btn {
+      padding: 12px 15px;
+      font-size: 14px;
+    }
+
+    .card-header {
+      height: 160px;
+    }
+
+    .card-body {
+      padding: 15px;
+    }
+  }
+
+  @media (max-width: 576px) {
+    .items-grid {
+      grid-template-columns: 1fr;
+      gap: 15px;
+    }
+
+    .page-header {
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .page-header .d-flex {
+      flex-direction: column;
+      align-items: flex-start !important;
+    }
+
+    .tabs-container .d-flex {
+      flex-direction: column;
+    }
+
+    .tab-btn {
+      width: 100%;
+      text-align: left;
+    }
+
+    .card-actions {
+      flex-direction: column;
+    }
+
+    .card-actions .btn {
+      width: 100%;
+    }
+  }
+</style>
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    // Handle broken images
-    const images = document.querySelectorAll('.item-img-wrapper img');
+    // Tab switching functionality
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
     
+    tabButtons.forEach(button => {
+      button.addEventListener('click', function() {
+        const targetId = this.getAttribute('data-target');
+        
+        // Update active tab button
+        tabButtons.forEach(btn => btn.classList.remove('active'));
+        this.classList.add('active');
+        
+        // Show target content
+        tabContents.forEach(content => {
+          content.style.display = 'none';
+          content.classList.remove('active');
+        });
+        
+        const targetContent = document.getElementById(targetId);
+        if (targetContent) {
+          targetContent.style.display = 'block';
+          targetContent.classList.add('active');
+        }
+      });
+    });
+    
+    // Handle broken images
+    const images = document.querySelectorAll('.item-image img');
     images.forEach(img => {
-      img.onerror = function() {
-        this.src = '/images/default.jpg';
+      img.addEventListener('error', function() {
+        this.src = 'https://via.placeholder.com/300x200/e9ecef/6c757d?text=No+Image';
         this.style.objectFit = 'contain';
         this.style.padding = '20px';
-      };
+      });
+    });
+    
+    // Add click effect to cards
+    const cards = document.querySelectorAll('.item-card');
+    cards.forEach(card => {
+      card.addEventListener('click', function(e) {
+        if (!e.target.closest('a')) {
+          const viewLink = this.querySelector('a[href*="/items/"]');
+          if (viewLink) {
+            window.location = viewLink.href;
+          }
+        }
+      });
     });
   });
 </script>

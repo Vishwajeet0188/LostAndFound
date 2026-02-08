@@ -9,7 +9,7 @@
       <div class="card bg-primary text-white">
         <div class="card-body">
           <h5 class="card-title">Total Users</h5>
-          <h2><%= stats.totalUsers %></h2>
+          <h2 id="totalUsers"><%= stats.totalUsers || 0 %></h2>
         </div>
       </div>
     </div>
@@ -17,7 +17,7 @@
       <div class="card bg-success text-white">
         <div class="card-body">
           <h5 class="card-title">Total Items</h5>
-          <h2><%= stats.totalItems %></h2>
+          <h2 id="totalItems"><%= stats.totalItems || 0 %></h2>
         </div>
       </div>
     </div>
@@ -25,7 +25,7 @@
       <div class="card bg-warning text-dark">
         <div class="card-body">
           <h5 class="card-title">Found Items</h5>
-          <h2><%= stats.foundItems %></h2>
+          <h2 id="foundItems"><%= stats.foundItems || 0 %></h2>
         </div>
       </div>
     </div>
@@ -33,7 +33,7 @@
       <div class="card bg-info text-white">
         <div class="card-body">
           <h5 class="card-title">Total Rewards</h5>
-          <h2>₹<%= stats.totalRewards %></h2>
+          <h2 id="totalRewards">₹<%= stats.totalRewards || 0 %></h2>
         </div>
       </div>
     </div>
@@ -47,26 +47,34 @@
           <h5>📝 Recent Items</h5>
         </div>
         <div class="card-body">
-          <table class="table table-sm">
-            <thead>
-              <tr>
-                <th>Item</th>
-                <th>Owner</th>
-                <th>Status</th>
-                <th>Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              <% recentItems.forEach(item => { %>
+          <% if (recentItems && recentItems.length > 0) { %>
+            <table class="table table-sm">
+              <thead>
                 <tr>
-                  <td><a href="/items/<%= item._id %>"><%= item.title %></a></td>
-                  <td><%= item.owner?.name || 'Unknown' %></td>
-                  <td><span class="badge bg-<%= item.status === 'found' ? 'success' : 'warning' %>"><%= item.status %></span></td>
-                  <td><%= new Date(item.createdAt).toLocaleDateString() %></td>
+                  <th>Item</th>
+                  <th>Owner</th>
+                  <th>Status</th>
+                  <th>Date</th>
                 </tr>
-              <% }) %>
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                <% recentItems.forEach(item => { %>
+                  <tr>
+                    <td><a href="/items/<%= item._id %>"><%= item.title %></a></td>
+                    <td><%= item.owner && item.owner.name ? item.owner.name : 'Unknown' %></td>
+                    <td>
+                      <span class="badge bg-<%= item.status === 'found' ? 'success' : 'warning' %>">
+                        <%= item.status %>
+                      </span>
+                    </td>
+                    <td><%= new Date(item.createdAt).toLocaleDateString() %></td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          <% } else { %>
+            <p class="text-muted text-center py-3">No recent items found</p>
+          <% } %>
         </div>
       </div>
     </div>
@@ -78,26 +86,34 @@
           <h5>👥 Recent Users</h5>
         </div>
         <div class="card-body">
-          <table class="table table-sm">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Role</th>
-                <th>Joined</th>
-              </tr>
-            </thead>
-            <tbody>
-              <% recentUsers.forEach(user => { %>
+          <% if (recentUsers && recentUsers.length > 0) { %>
+            <table class="table table-sm">
+              <thead>
                 <tr>
-                  <td><%= user.name %></td>
-                  <td><%= user.email %></td>
-                  <td><span class="badge bg-<%= user.role === 'admin' ? 'danger' : 'primary' %>"><%= user.role %></span></td>
-                  <td><%= new Date(user.createdAt).toLocaleDateString() %></td>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Role</th>
+                  <th>Joined</th>
                 </tr>
-              <% }) %>
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                <% recentUsers.forEach(user => { %>
+                  <tr>
+                    <td><%= user.name || 'Unknown' %></td>
+                    <td><%= user.email %></td>
+                    <td>
+                      <span class="badge bg-<%= user.role === 'admin' ? 'danger' : 'primary' %>">
+                        <%= user.role %>
+                      </span>
+                    </td>
+                    <td><%= new Date(user.createdAt).toLocaleDateString() %></td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          <% } else { %>
+            <p class="text-muted text-center py-3">No recent users found</p>
+          <% } %>
         </div>
       </div>
     </div>
@@ -106,22 +122,18 @@
   <!-- Quick Links -->
   <div class="row mt-4">
     <div class="col-12">
-      <div class="card">
+      <div class="card quick-actions-card">
         <div class="card-body">
           <h5 class="card-title">Quick Actions</h5>
-          <a href="/admin/users" class="btn btn-primary me-2">Manage Users</a>
-          <a href="/admin/items" class="btn btn-success me-2">Manage Items</a>
-          <a href="/" class="btn btn-secondary">Back to Site</a>
+          <a href="/admin/users" class="btn btn-primary me-2 mb-2">Manage Users</a>
+          <a href="/admin/items" class="btn btn-success me-2 mb-2">Manage Items</a>
+          <a href="/" class="btn btn-secondary mb-2">Back to Site</a>
         </div>
       </div>
     </div>
   </div>
 </div>
 
-
-
-
-<!-- Add this CSS section in your admin.ejs file -->
 <style>
   /* Admin Dashboard Styles */
   .container-fluid {
@@ -153,9 +165,6 @@
     margin: 0;
     font-weight: 600;
     color: #333;
-    display: flex;
-    align-items: center;
-    gap: 8px;
   }
 
   .card .card-body {
@@ -313,9 +322,21 @@
     padding-bottom: 15px;
     border-bottom: 3px solid #667eea;
     margin-top: 20px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
+  }
+
+  /* Quick Actions Card */
+  .quick-actions-card {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: 2px dashed #dee2e6;
+  }
+
+  .quick-actions-card .card-body {
+    text-align: center;
+  }
+
+  .quick-actions-card .card-title {
+    color: #495057;
+    margin-bottom: 20px;
   }
 
   /* Responsive Design */
@@ -344,14 +365,6 @@
       font-size: 0.9rem;
       margin-bottom: 5px;
     }
-    
-    .row {
-      margin: 0 -10px;
-    }
-    
-    .col-md-3, .col-md-6 {
-      padding: 0 10px;
-    }
   }
 
   /* Animation for stats cards */
@@ -374,132 +387,35 @@
   .row.mb-4 > div:nth-child(2) { animation-delay: 0.2s; }
   .row.mb-4 > div:nth-child(3) { animation-delay: 0.3s; }
   .row.mb-4 > div:nth-child(4) { animation-delay: 0.4s; }
-
-  /* Custom scrollbar for tables */
-  .card-body::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  .card-body::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 10px;
-  }
-
-  .card-body::-webkit-scrollbar-thumb {
-    background: #c1c1c1;
-    border-radius: 10px;
-  }
-
-  .card-body::-webkit-scrollbar-thumb:hover {
-    background: #a8a8a8;
-  }
-
-  /* Quick Actions Card */
-  .quick-actions-card {
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    border: 2px dashed #dee2e6;
-  }
-
-  .quick-actions-card .card-body {
-    text-align: center;
-  }
-
-  .quick-actions-card .card-title {
-    color: #495057;
-    margin-bottom: 20px;
-  }
-
-  /* Status indicators */
-  .status-indicator {
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    margin-right: 8px;
-  }
-
-  .status-active {
-    background-color: #28a745;
-  }
-
-  .status-inactive {
-    background-color: #dc3545;
-  }
-
-  /* Loading skeleton (optional) */
-  .skeleton {
-    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-    background-size: 200% 100%;
-    animation: loading 1.5s infinite;
-    border-radius: 4px;
-  }
-
-  @keyframes loading {
-    0% { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
-  }
 </style>
 
-<!-- Optional: Add some JavaScript for interactivity -->
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    // Add tooltips to badges
-    const badges = document.querySelectorAll('.badge');
-    badges.forEach(badge => {
-      badge.setAttribute('title', badge.textContent + ' status');
-    });
-
-    // Animate numbers in stats cards
-    function animateNumbers() {
-      const counters = document.querySelectorAll('.card h2');
-      counters.forEach(counter => {
-        const target = parseInt(counter.textContent.replace('₹', '').replace(/,/g, ''));
-        if (!isNaN(target)) {
-          animateCounter(counter, target);
+    // Simple number animation
+    function animateCounter(element, start, end, duration, prefix = '') {
+      let startTimestamp = null;
+      const step = (timestamp) => {
+        if (!startTimestamp) startTimestamp = timestamp;
+        const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+        const value = Math.floor(progress * (end - start) + start);
+        element.textContent = prefix + value.toLocaleString();
+        if (progress < 1) {
+          window.requestAnimationFrame(step);
         }
-      });
+      };
+      window.requestAnimationFrame(step);
     }
 
-    function animateCounter(element, target) {
-      let current = 0;
-      const increment = target / 100;
-      const timer = setInterval(() => {
-        current += increment;
-        if (current >= target) {
-          element.textContent = target.toLocaleString();
-          if (element.closest('.bg-info')) {
-            element.textContent = '₹' + target.toLocaleString();
-          }
-          clearInterval(timer);
-        } else {
-          element.textContent = Math.floor(current).toLocaleString();
-          if (element.closest('.bg-info')) {
-            element.textContent = '₹' + Math.floor(current).toLocaleString();
-          }
-        }
-      }, 20);
-    }
+    // Get values from elements
+    const totalUsers = parseInt(document.getElementById('totalUsers').textContent) || 0;
+    const totalItems = parseInt(document.getElementById('totalItems').textContent) || 0;
+    const foundItems = parseInt(document.getElementById('foundItems').textContent) || 0;
+    const totalRewards = parseInt(document.getElementById('totalRewards').textContent.replace('₹', '').replace(/,/g, '')) || 0;
 
-    // Start animation after page loads
-    setTimeout(animateNumbers, 500);
-
-    // Add click animation to cards
-    const cards = document.querySelectorAll('.card');
-    cards.forEach(card => {
-      card.addEventListener('click', function(e) {
-        if (!e.target.closest('a') && !e.target.closest('button')) {
-          this.style.transform = 'scale(0.98)';
-          setTimeout(() => {
-            this.style.transform = '';
-          }, 200);
-        }
-      });
-    });
-
-    // Auto-refresh stats every 30 seconds
-    setInterval(() => {
-      // You can add AJAX call here to refresh stats
-      console.log('Auto-refresh triggered');
-    }, 30000);
+    // Animate counters
+    animateCounter(document.getElementById('totalUsers'), 0, totalUsers, 1000);
+    animateCounter(document.getElementById('totalItems'), 0, totalItems, 1000);
+    animateCounter(document.getElementById('foundItems'), 0, foundItems, 1000);
+    animateCounter(document.getElementById('totalRewards'), 0, totalRewards, 1000, '₹');
   });
 </script>

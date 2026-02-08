@@ -13,14 +13,23 @@
               <p class="text-muted mb-0">Login to your Lost & Found account</p>
             </div>
 
-            <% if (error && error.length > 0) { %>
-                <div class="alert alert-danger text-center">
-                    <%= error[0] %>
+            <!-- Flash Messages -->
+            <% if (error_msg && error_msg.length > 0) { %>
+                <div class="alert alert-danger alert-dismissible fade show">
+                    <%= error_msg[0] %>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            <% } %>
+            
+            <% if (success_msg && success_msg.length > 0) { %>
+                <div class="alert alert-success alert-dismissible fade show">
+                    <%= success_msg[0] %>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
             <% } %>
 
-
-            <form action="/login" method="POST">
+            <!-- Add novalidate here -->
+            <form action="/login" method="POST" novalidate>
               <div class="mb-3">
                 <label class="form-label">Email</label>
                 <input
@@ -29,23 +38,34 @@
                   class="form-control"
                   placeholder="Enter your email"
                   required
+                  autofocus
                 >
               </div>
 
               <div class="mb-3">
                 <label class="form-label">Password</label>
-                <input
-                  type="password"
-                  name="password"
-                  class="form-control"
-                  placeholder="Enter your password"
-                  required
-                >
+                <div class="input-group">
+                  <input
+                    type="password"
+                    name="password"
+                    id="password"
+                    class="form-control"
+                    placeholder="Enter your password"
+                    required
+                  >
+                  <button 
+                    type="button" 
+                    class="btn btn-outline-secondary toggle-password"
+                    style="border-top-left-radius: 0; border-bottom-left-radius: 0;"
+                  >
+                    <i class="fas fa-eye"></i>
+                  </button>
+                </div>
               </div>
 
               <div class="d-grid mt-4">
-                <button class="btn btn-primary btn-lg">
-                  Login
+                <button type="submit" class="btn btn-primary btn-lg">
+                  <i class="fas fa-sign-in-alt me-2"></i> Login
                 </button>
               </div>
             </form>
@@ -57,6 +77,11 @@
               <a href="/register" class="fw-semibold text-decoration-none">
                 Create account
               </a>
+              <div class="mt-3">
+                <a href="/" class="text-decoration-none">
+                  <i class="fas fa-home me-1"></i> Back to Home
+                </a>
+              </div>
             </div>
           </div>
 
@@ -70,26 +95,26 @@
 
 
 <style>
-
 /* ================= LOGIN PAGE ================= */
-
-/* ================= LOGIN PAGE ================= */
-
 .login-page {
   background: linear-gradient(135deg, #667eea, #764ba2);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
 }
 
 .login-card {
   border-radius: 20px;
   border: none;
-  padding: 10px;
   background: rgba(255, 255, 255, 0.96);
   animation: fadeUp 0.6s ease;
+  backdrop-filter: blur(10px);
 }
 
 /* Title */
 .login-card h3 {
   color: #2d2f48;
+  margin-bottom: 5px;
 }
 
 /* Inputs */
@@ -103,6 +128,12 @@
 .login-card .form-control:focus {
   border-color: #667eea;
   box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.25);
+}
+
+/* Password input group */
+.login-card .input-group .form-control {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
 }
 
 /* Button */
@@ -119,6 +150,17 @@
 .login-card .btn-primary:hover {
   transform: translateY(-2px);
   box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+}
+
+/* Password toggle button */
+.toggle-password {
+  border: 1px solid #ddd;
+  border-left: none;
+  background: white;
+}
+
+.toggle-password:hover {
+  background: #f8f9fa;
 }
 
 /* Divider */
@@ -138,5 +180,39 @@
   }
 }
 
+/* ===== ADD THIS TO DISABLE VALIDATION STYLES ===== */
+.form-control:valid,
+.form-control:invalid {
+    background-image: none !important;
+    box-shadow: none !important;
+    border-color: #ddd !important;
+}
 
+.form-control:focus {
+    border-color: #667eea !important;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.25) !important;
+}
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Password visibility toggle
+  const togglePassword = document.querySelector('.toggle-password');
+  const passwordInput = document.getElementById('password');
+  
+  if (togglePassword && passwordInput) {
+    togglePassword.addEventListener('click', function() {
+      const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+      passwordInput.setAttribute('type', type);
+      
+      // Toggle eye icon
+      const icon = this.querySelector('i');
+      if (type === 'password') {
+        icon.className = 'fas fa-eye';
+      } else {
+        icon.className = 'fas fa-eye-slash';
+      }
+    });
+  }
+});
+</script>

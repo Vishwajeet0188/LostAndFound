@@ -1,6 +1,21 @@
 <% layout("layouts/boilerplate") %>
 
 <div class="container mt-4 mb-5">
+  <!-- Flash Messages -->
+  <% if (success_msg) { %>
+    <div class="alert alert-success alert-dismissible fade show mb-4">
+      <%= success_msg %>
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+  <% } %>
+  
+  <% if (error_msg) { %>
+    <div class="alert alert-danger alert-dismissible fade show mb-4">
+      <%= error_msg %>
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+  <% } %>
+
   <!-- Back Button -->
   <a href="/dashboard" class="btn btn-outline-secondary mb-4">
     <i class="fas fa-arrow-left me-2"></i> Back to Dashboard
@@ -16,37 +31,50 @@
             <% if (user.profilePicture) { %>
               <img src="<%= user.profilePicture %>" 
                    alt="Profile" 
-                   class="avatar-img rounded-circle">
+                   class="avatar-img rounded-circle"
+                   onerror="this.src='/images/default-avatar.jpg'; this.classList.add('broken-image')">
             <% } else { %>
               <div class="avatar-placeholder rounded-circle">
                 <i class="fas fa-user fa-3x text-muted"></i>
               </div>
             <% } %>
-           <button
-                class="btn btn-sm btn-outline-primary change-photo-btn"
-                data-bs-toggle="modal"
-                data-bs-target="#changePhotoModal"
-                >
-                <i class="fas fa-camera me-1"></i> Change Photo
+            <button class="btn btn-sm btn-outline-primary change-photo-btn mt-2"
+                    data-bs-toggle="modal"
+                    data-bs-target="#changePhotoModal">
+              <i class="fas fa-camera me-1"></i> Change Photo
             </button>
-
           </div>
           
           <h4 class="mb-1"><%= user.name || 'User' %></h4>
           <p class="text-muted mb-3"><%= user.email %></p>
           
-            <% if (typeof userStats !== 'undefined') { %>
-                <div class="user-stats d-flex justify-content-around">
-                    <div class="stat-item">
-                    <h5 class="mb-1"><%= userStats.listedItems || 0 %></h5>
-                    <small class="text-muted">Listed Items</small>
-                    </div>
-                    <div class="stat-item">
-                    <h5 class="mb-1"><%= userStats.foundItems || 0 %></h5>
-                    <small class="text-muted">Found Items</small>
-                    </div>
-                </div>
-            <% } %>
+          <!-- User Role -->
+          <span class="badge bg-<%= user.role === 'admin' ? 'danger' : 'primary' %> mb-3">
+            <i class="fas fa-<%= user.role === 'admin' ? 'crown' : 'user' %> me-1"></i>
+            <%= user.role === 'admin' ? 'Administrator' : 'User' %>
+          </span>
+          
+          <!-- User Stats -->
+          <% if (userStats) { %>
+            <div class="user-stats d-flex justify-content-around mt-3 pt-3 border-top">
+              <div class="stat-item">
+                <h5 class="mb-1"><%= userStats.listedItems || 0 %></h5>
+                <small class="text-muted">Listed</small>
+              </div>
+              <div class="stat-item">
+                <h5 class="mb-1"><%= userStats.foundItems || 0 %></h5>
+                <small class="text-muted">Found</small>
+              </div>
+            </div>
+          <% } %>
+          
+          <!-- Member Since -->
+          <div class="mt-3 pt-3 border-top">
+            <small class="text-muted">
+              <i class="fas fa-calendar-alt me-1"></i>
+              Member since <%= new Date(user.createdAt).toLocaleDateString() %>
+            </small>
+          </div>
         </div>
       </div>
     </div>
@@ -59,21 +87,23 @@
             <i class="fas fa-user-edit me-2"></i> Edit Profile
           </h4>
 
-          <form action="/profile/update" method="POST">
+          <form id="profileForm" action="/profile/update" method="POST">
             <div class="row">
               <!-- Full Name -->
               <div class="col-md-6 mb-3">
-                <label class="form-label">Full Name *</label>
+                <label class="form-label">Full Name <span class="text-danger">*</span></label>
                 <input type="text" 
                        class="form-control" 
                        name="name" 
                        value="<%= user.name || '' %>" 
-                       required>
+                       required
+                       minlength="2"
+                       maxlength="50">
               </div>
 
               <!-- Email -->
               <div class="col-md-6 mb-3">
-                <label class="form-label">Email *</label>
+                <label class="form-label">Email <span class="text-danger">*</span></label>
                 <input type="email" 
                        class="form-control" 
                        value="<%= user.email %>" 
@@ -85,11 +115,14 @@
             <!-- Phone -->
             <div class="mb-3">
               <label class="form-label">Phone Number</label>
-              <input type="tel" 
+              <input type="text" 
                      class="form-control" 
                      name="phone" 
                      value="<%= user.phone || '' %>"
-                     placeholder="+91 9876543210">
+                     placeholder="9876543210"
+                     pattern="[0-9]{10}"
+                     title="Please enter a valid 10-digit phone number">
+              <small class="text-muted">10-digit number without country code</small>
             </div>
 
             <!-- Address -->
@@ -98,7 +131,8 @@
               <textarea class="form-control" 
                         name="address" 
                         rows="3" 
-                        placeholder="Enter your address"><%= user.address || '' %></textarea>
+                        placeholder="Enter your address"
+                        maxlength="200"><%= user.address || '' %></textarea>
             </div>
 
             <!-- Bio -->
@@ -107,7 +141,9 @@
               <textarea class="form-control" 
                         name="bio" 
                         rows="3" 
-                        placeholder="Tell us about yourself"><%= user.bio || '' %></textarea>
+                        placeholder="Tell us about yourself..."
+                        maxlength="500"><%= user.bio || '' %></textarea>
+              <small class="text-muted">Max 500 characters</small>
             </div>
 
             <!-- Submit Buttons -->
@@ -125,19 +161,38 @@
             <i class="fas fa-lock me-2"></i> Change Password
           </h5>
           
-          <form action="/profile/change-password" method="POST">
+          <form id="passwordForm" action="/profile/change-password" method="POST">
             <div class="row">
               <div class="col-md-4 mb-3">
-                <label class="form-label">Current Password</label>
-                <input type="password" class="form-control" name="currentPassword" required>
+                <label class="form-label">Current Password <span class="text-danger">*</span></label>
+                <div class="input-group">
+                  <input type="password" class="form-control" name="currentPassword" required
+                         id="currentPassword">
+                  <button class="btn btn-outline-secondary" type="button" id="toggleCurrentPassword">
+                    <i class="fas fa-eye"></i>
+                  </button>
+                </div>
               </div>
               <div class="col-md-4 mb-3">
-                <label class="form-label">New Password</label>
-                <input type="password" class="form-control" name="newPassword" required>
+                <label class="form-label">New Password <span class="text-danger">*</span></label>
+                <div class="input-group">
+                  <input type="password" class="form-control" name="newPassword" required
+                         id="newPassword" minlength="6">
+                  <button class="btn btn-outline-secondary" type="button" id="toggleNewPassword">
+                    <i class="fas fa-eye"></i>
+                  </button>
+                </div>
+                <small class="text-muted">Minimum 6 characters</small>
               </div>
               <div class="col-md-4 mb-3">
-                <label class="form-label">Confirm Password</label>
-                <input type="password" class="form-control" name="confirmPassword" required>
+                <label class="form-label">Confirm Password <span class="text-danger">*</span></label>
+                <div class="input-group">
+                  <input type="password" class="form-control" name="confirmPassword" required
+                         id="confirmPassword">
+                  <button class="btn btn-outline-secondary" type="button" id="toggleConfirmPassword">
+                    <i class="fas fa-eye"></i>
+                  </button>
+                </div>
               </div>
             </div>
             <button type="submit" class="btn btn-warning">
@@ -158,14 +213,19 @@
         <h5 class="modal-title">Change Profile Photo</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
-      <form action="/profile/upload-photo" method="POST" enctype="multipart/form-data">
+      <form action="/profile/upload-photo" method="POST" enctype="multipart/form-data" id="photoForm">
         <div class="modal-body">
           <div class="mb-3">
             <label class="form-label">Select New Photo</label>
-            <input type="file" class="form-control" name="profilePicture" accept="image/*">
+            <input type="file" class="form-control" name="profilePicture" accept="image/*" required
+                   id="profilePictureInput">
+            <div class="image-preview mt-3" id="imagePreview" style="display: none;">
+              <p class="small text-muted mb-2">Preview:</p>
+              <img id="previewImage" class="img-thumbnail" style="max-width: 150px; max-height: 150px; object-fit: cover;">
+            </div>
           </div>
           <div class="alert alert-info">
-            <small>Maximum file size: 2MB. Supported formats: JPG, PNG, GIF</small>
+            <small><i class="fas fa-info-circle me-1"></i> Maximum file size: 2MB. Supported formats: JPG, PNG, GIF, WebP</small>
           </div>
         </div>
         <div class="modal-footer">
@@ -178,76 +238,341 @@
 </div>
 
 <style>
-.avatar-wrapper {
-  position: relative;
-}
-
-.avatar-img {
-  width: 120px;
-  height: 120px;
-  object-fit: cover;
-  border: 4px solid #fff;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-}
-
-.avatar-placeholder {
-  width: 120px;
-  height: 120px;
-  background: #f8f9fa;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto;
-  border: 4px solid #fff;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-}
-
-.user-stats {
-  border-top: 1px solid #dee2e6;
-  padding-top: 15px;
-  margin-top: 15px;
-}
-
-.stat-item {
-  text-align: center;
-}
-
-.stat-item h5 {
-  font-weight: 700;
-  color: #667eea;
-}
-
-.form-label {
-  font-weight: 600;
-  color: #495057;
-}
-
-.card {
-  border-radius: 12px;
-  border: 1px solid #e9ecef;
-}
-
-.card-title {
-  color: #2d2f48;
-  border-bottom: 2px solid #667eea;
-  padding-bottom: 10px;
-}
-
-.modal-header{
+  /* Profile Page Styles */
+  .avatar-wrapper {
+    position: relative;
     display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
 
-}
+  .avatar-img {
+    width: 140px;
+    height: 140px;
+    object-fit: cover;
+    border: 4px solid white;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    border-radius: 50%;
+    transition: transform 0.3s ease;
+  }
 
-/* /* // profile button */
+  .avatar-img:hover {
+    transform: scale(1.05);
+  }
 
-.change-photo-btn {
-  display: block;         
-  margin: 8px auto 0 auto; 
-  padding: 4px 14px;
-  font-size: 0.8rem;
-  border-radius: 20px;
-  white-space: nowrap;
-}
+  .avatar-placeholder {
+    width: 140px;
+    height: 140px;
+    background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 4px solid white;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    border-radius: 50%;
+  }
 
+  .avatar-placeholder i {
+    color: #667eea;
+    opacity: 0.7;
+  }
 
+  .change-photo-btn {
+    margin-top: 15px;
+    padding: 6px 18px;
+    font-size: 0.85rem;
+    border-radius: 20px;
+    border: 2px solid #667eea;
+    color: #667eea;
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
+
+  .change-photo-btn:hover {
+    background: #667eea;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+  }
+
+  .user-stats {
+    padding-top: 15px;
+    margin-top: 15px;
+  }
+
+  .stat-item {
+    text-align: center;
+    padding: 0 15px;
+  }
+
+  .stat-item h5 {
+    font-weight: 700;
+    color: #667eea;
+    font-size: 1.8rem;
+  }
+
+  .stat-item small {
+    font-size: 0.85rem;
+    color: #6c757d;
+  }
+
+  .form-label {
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 8px;
+  }
+
+  .form-control {
+    border-radius: 10px;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    transition: all 0.3s;
+  }
+
+  .form-control:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.25);
+  }
+
+  .card {
+    border-radius: 15px;
+    border: 1px solid #e9ecef;
+    overflow: hidden;
+  }
+
+  .card-title {
+    color: #2d2f48;
+    padding-bottom: 10px;
+    position: relative;
+  }
+
+  .card-title:after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 60px;
+    height: 3px;
+    background: #667eea;
+    border-radius: 3px;
+  }
+
+  /* Password Toggle Button */
+  .input-group .btn-outline-secondary {
+    border-left: none;
+    border-color: #ddd;
+  }
+
+  .input-group .btn-outline-secondary:hover {
+    background: #f8f9fa;
+  }
+
+  /* Modal Styles */
+  .modal-content {
+    border-radius: 15px;
+    border: none;
+  }
+
+  .modal-header {
+    background: #f8f9fa;
+    border-radius: 15px 15px 0 0;
+    border-bottom: 1px solid #dee2e6;
+  }
+
+  /* Image Preview */
+  .image-preview {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 10px;
+    border: 2px dashed #dee2e6;
+  }
+
+  /* Badge Styles */
+  .badge {
+    padding: 8px 15px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border-radius: 20px;
+  }
+
+  .badge.bg-primary {
+    background: linear-gradient(135deg, #667eea, #764ba2) !important;
+  }
+
+  .badge.bg-danger {
+    background: linear-gradient(135deg, #ff6b6b, #ff4757) !important;
+  }
+
+  /* Button Styles */
+  .btn-primary {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border: none;
+    border-radius: 10px;
+    padding: 10px 25px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+  }
+
+  .btn-warning {
+    background: linear-gradient(135deg, #ff9f43, #ff9f43);
+    border: none;
+    border-radius: 10px;
+    padding: 10px 25px;
+    font-weight: 600;
+    color: white;
+    transition: all 0.3s ease;
+  }
+
+  .btn-warning:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(255, 159, 67, 0.4);
+  }
+
+  .btn-outline-secondary {
+    border-radius: 10px;
+    padding: 10px 25px;
+    font-weight: 600;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .avatar-img, .avatar-placeholder {
+      width: 120px;
+      height: 120px;
+    }
+    
+    .stat-item h5 {
+      font-size: 1.5rem;
+    }
+    
+    .row .col-md-4 {
+      margin-bottom: 15px;
+    }
+    
+    .d-flex {
+      flex-direction: column;
+      gap: 10px;
+    }
+    
+    .btn {
+      width: 100%;
+    }
+  }
 </style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Toggle password visibility
+    function setupPasswordToggle(buttonId, inputId) {
+      const toggleBtn = document.getElementById(buttonId);
+      const passwordInput = document.getElementById(inputId);
+      
+      if (toggleBtn && passwordInput) {
+        toggleBtn.addEventListener('click', function() {
+          const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+          passwordInput.setAttribute('type', type);
+          
+          const icon = this.querySelector('i');
+          icon.className = type === 'password' ? 'fas fa-eye' : 'fas fa-eye-slash';
+        });
+      }
+    }
+    
+    setupPasswordToggle('toggleCurrentPassword', 'currentPassword');
+    setupPasswordToggle('toggleNewPassword', 'newPassword');
+    setupPasswordToggle('toggleConfirmPassword', 'confirmPassword');
+    
+    // Image preview for profile photo upload
+    const photoInput = document.getElementById('profilePictureInput');
+    const imagePreview = document.getElementById('imagePreview');
+    const previewImage = document.getElementById('previewImage');
+    
+    if (photoInput) {
+      photoInput.addEventListener('change', function() {
+        const file = this.files[0];
+        if (file) {
+          // Validate file size (max 2MB)
+          if (file.size > 2 * 1024 * 1024) {
+            alert('File size must be less than 2MB');
+            this.value = '';
+            imagePreview.style.display = 'none';
+            return;
+          }
+          
+          // Validate file type
+          const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+          if (!allowedTypes.includes(file.type)) {
+            alert('Only JPG, PNG, GIF, and WebP images are allowed');
+            this.value = '';
+            imagePreview.style.display = 'none';
+            return;
+          }
+          
+          // Show preview
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            previewImage.src = e.target.result;
+            imagePreview.style.display = 'block';
+          }
+          reader.readAsDataURL(file);
+        } else {
+          imagePreview.style.display = 'none';
+        }
+      });
+    }
+    
+    // Password form validation
+    const passwordForm = document.getElementById('passwordForm');
+    if (passwordForm) {
+      passwordForm.addEventListener('submit', function(e) {
+        const currentPassword = document.getElementById('currentPassword').value;
+        const newPassword = document.getElementById('newPassword').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        
+        if (newPassword.length < 6) {
+          e.preventDefault();
+          alert('New password must be at least 6 characters long.');
+          return false;
+        }
+        
+        if (newPassword !== confirmPassword) {
+          e.preventDefault();
+          alert('New password and confirm password do not match.');
+          return false;
+        }
+        
+        // Optional: Check if new password is different from current
+        if (newPassword === currentPassword) {
+          e.preventDefault();
+          alert('New password must be different from current password.');
+          return false;
+        }
+      });
+    }
+    
+    // Profile form validation
+    const profileForm = document.getElementById('profileForm');
+    if (profileForm) {
+      profileForm.addEventListener('submit', function(e) {
+        const name = this.querySelector('input[name="name"]').value.trim();
+        if (name.length < 2) {
+          e.preventDefault();
+          alert('Name must be at least 2 characters long.');
+          return false;
+        }
+        
+        const phone = this.querySelector('input[name="phone"]').value;
+        if (phone && !/^\d{10}$/.test(phone)) {
+          e.preventDefault();
+          alert('Please enter a valid 10-digit phone number.');
+          return false;
+        }
+      });
+    }
+  });
+</script>

@@ -42,7 +42,7 @@
             </ul>
           </li>
 
-           <% if (!user) { %>
+           <% if (!currentUser) { %>  <!-- CHANGED: user → currentUser -->
           <!-- NOT LOGGED IN -->
           <li class="nav-item">
             <a class="nav-link" href="/login">Login</a>
@@ -52,7 +52,7 @@
           </li>
         <% } else { %>
           <!-- LOGGED IN - SHOW ADMIN BUTTON FIRST -->
-          <% if (user.role === 'admin') { %>
+          <% if (currentUser.role === 'admin') { %>  <!-- CHANGED: user → currentUser -->
             <li class="nav-item">
               <a class="nav-link admin-nav-btn" href="/admin/dashboard">
                 <i class="fas fa-crown me-1"></i> 
@@ -77,5 +77,3 @@
     </div>
   </div>
 </nav>
-
-

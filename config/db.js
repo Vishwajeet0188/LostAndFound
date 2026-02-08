@@ -1,15 +1,13 @@
-// will connect mongo db here : 
-
 const mongoose = require("mongoose");
 
 const connectDB = async() => {
     try{
-        // LOCAL MONGO 
+        // FOR LOCAL MONGO (UNCOMMENT THIS):
         // await mongoose.connect("mongodb://127.0.0.1:27017/lostfound");
-        // console.log("MongoDB Connected");
-
-        // MONGO ATLAS : 
+        
+        // FOR MONGO ATLAS (UNCOMMENT THIS):
         await mongoose.connect(process.env.ATLAS_DB);
+        
         console.log("MongoDB Connected");
     }
     catch(err){

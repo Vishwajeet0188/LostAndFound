@@ -1,0 +1,132 @@
+<% layout("layouts/boilerplate") %>
+
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+          <h4 class="mb-0">Claim Reward for <%= item.title %></h4>
+        </div>
+        <div class="card-body">
+          
+          <% if (messages.error) { %>
+            <div class="alert alert-danger">
+              <%= messages.error %>
+            </div>
+          <% } %>
+          
+          <% if (messages.success) { %>
+            <div class="alert alert-success">
+              <%= messages.success %>
+            </div>
+          <% } %>
+          
+          <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i> 
+            This item has a reward of <strong>£<%= item.reward %></strong>. 
+            Please select your preferred payment method.
+          </div>
+          
+          <form action="/items/<%= item._id %>/claim-reward" method="POST">
+            <div class="mb-4">
+              <label class="form-label fw-bold">Select Payment Method</label>
+              <div class="form-check mb-2">
+                <input class="form-check-input" type="radio" name="paymentMethod" id="upi" value="upi" required>
+                <label class="form-check-label" for="upi">
+                  <i class="fas fa-mobile-alt me-2"></i> UPI Payment
+                </label>
+              </div>
+              <div class="form-check mb-2">
+                <input class="form-check-input" type="radio" name="paymentMethod" id="bank" value="bank">
+                <label class="form-check-label" for="bank">
+                  <i class="fas fa-university me-2"></i> Bank Transfer
+                </label>
+              </div>
+              <div class="form-check mb-2">
+                <input class="form-check-input" type="radio" name="paymentMethod" id="cash" value="cash">
+                <label class="form-check-label" for="cash">
+                  <i class="fas fa-money-bill-wave me-2"></i> Cash Payment
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="paymentMethod" id="other" value="other">
+                <label class="form-check-label" for="other">
+                  <i class="fas fa-ellipsis-h me-2"></i> Other Method
+                </label>
+              </div>
+            </div>
+            
+            <!-- UPI Details (Initially Hidden) -->
+            <div id="upiDetails" class="payment-details" style="display: none;">
+              <div class="mb-3">
+                <label for="upiId" class="form-label">UPI ID</label>
+                <input type="text" class="form-control" id="upiId" name="upiId" placeholder="yourname@upi">
+              </div>
+            </div>
+            
+            <!-- Bank Details (Initially Hidden) -->
+            <div id="bankDetails" class="payment-details" style="display: none;">
+              <div class="mb-3">
+                <label for="bankName" class="form-label">Bank Name</label>
+                <input type="text" class="form-control" id="bankName" name="bankName">
+              </div>
+              <div class="mb-3">
+                <label for="accountNumber" class="form-label">Account Number</label>
+                <input type="text" class="form-control" id="accountNumber" name="accountNumber">
+              </div>
+              <div class="mb-3">
+                <label for="accountHolderName" class="form-label">Account Holder Name</label>
+                <input type="text" class="form-control" id="accountHolderName" name="accountHolderName">
+              </div>
+              <div class="mb-3">
+                <label for="ifscCode" class="form-label">IFSC Code</label>
+                <input type="text" class="form-control" id="ifscCode" name="ifscCode" placeholder="SBIN0001234">
+              </div>
+            </div>
+            
+            <!-- Other Method Details -->
+            <div id="otherDetails" class="payment-details" style="display: none;">
+              <div class="mb-3">
+                <label for="otherPaymentDetails" class="form-label">Payment Details</label>
+                <textarea class="form-control" id="otherPaymentDetails" name="otherDetails" rows="3" placeholder="Describe how you'd like to receive the payment..."></textarea>
+              </div>
+            </div>
+            
+            <div class="mb-4">
+              <label for="additionalNotes" class="form-label">Additional Notes (Optional)</label>
+              <textarea class="form-control" id="additionalNotes" name="additionalNotes" rows="3" placeholder="Any additional information for the item owner..."></textarea>
+            </div>
+            
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+              <a href="/items/<%= item._id %>" class="btn btn-secondary me-md-2">Cancel</a>
+              <button type="submit" class="btn btn-primary">Submit Claim Request</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Show/hide payment details based on selection
+  document.querySelectorAll('input[name="paymentMethod"]').forEach(radio => {
+    radio.addEventListener('change', function() {
+      // Hide all payment details first
+      document.querySelectorAll('.payment-details').forEach(div => {
+        div.style.display = 'none';
+      });
+      
+      // Show selected payment details
+      const method = this.value;
+      document.getElementById(method + 'Details').style.display = 'block';
+      
+      // Make required fields optional if method changes
+      if (method === 'cash') {
+        document.querySelectorAll('.payment-details input, .payment-details textarea').forEach(input => {
+          input.required = false;
+        });
+      }
+    });
+  });
+</script>

@@ -23,21 +23,26 @@
             <p class="text-muted">Join our community today</p>
           </div>
 
-          <!-- Flash Messages -->
-          <% if (error_msg && error_msg.length > 0) { %>
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-              <i class="fas fa-exclamation-circle me-2"></i>
-              <%= error_msg[0] %>
-              <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-          <% } %>
+         <!-- Flash Messages -->
+        <% if (error_msg && error_msg.length > 0) { %>
+          <div class="alert alert-danger">
+            <%= error_msg[0] %>
+          </div>
+        <% } %>
+
+        <% if (success_msg && success_msg.length > 0) { %>
+          <div class="alert alert-success">
+            <%= success_msg[0] %>
+          </div>
+        <% } %>
+
 
           <!-- Signup Form -->
-          <form action="/register" method="POST" id="registerForm">
+          <form action="/register" method="POST" id="registerForm" novalidate>
             
             <!-- Name Field -->
             <div class="mb-3">
-              <label class="form-label">Full Name</label>
+              <label class="form-label">Full Name *</label>
               <div class="input-group">
                 <span class="input-group-text">
                   <i class="fas fa-user"></i>
@@ -48,13 +53,15 @@
                   class="form-control" 
                   placeholder="Enter your full name" 
                   required
+                  autofocus
+                  minlength="2"
                 >
               </div>
             </div>
 
             <!-- Email Field -->
             <div class="mb-3">
-              <label class="form-label">Email Address</label>
+              <label class="form-label">Email Address *</label>
               <div class="input-group">
                 <span class="input-group-text">
                   <i class="fas fa-envelope"></i>
@@ -71,7 +78,7 @@
 
             <!-- Password Field -->
             <div class="mb-3">
-              <label class="form-label">Password</label>
+              <label class="form-label">Password *</label>
               <div class="input-group">
                 <span class="input-group-text">
                   <i class="fas fa-lock"></i>
@@ -94,7 +101,7 @@
 
             <!-- Confirm Password Field -->
             <div class="mb-4">
-              <label class="form-label">Confirm Password</label>
+              <label class="form-label">Confirm Password *</label>
               <div class="input-group">
                 <span class="input-group-text">
                   <i class="fas fa-lock"></i>
@@ -115,6 +122,17 @@
               <div class="form-text text-danger" id="passwordMatchError" style="display: none;">
                 <i class="fas fa-times-circle me-1"></i> Passwords don't match
               </div>
+              <div class="form-text text-success" id="passwordMatchSuccess" style="display: none;">
+                <i class="fas fa-check-circle me-1"></i> Passwords match
+              </div>
+            </div>
+
+            <!-- Terms and Conditions -->
+            <div class="form-check mb-4">
+              <input class="form-check-input" type="checkbox" id="termsCheck" required>
+              <label class="form-check-label" for="termsCheck">
+                I agree to the <a href="/terms" class="text-decoration-none">Terms & Conditions</a>
+              </label>
             </div>
 
             <!-- Submit Button -->
@@ -136,6 +154,11 @@
                   Sign In
                 </a>
               </p>
+              <p class="mt-2">
+                <a href="/" class="text-decoration-none">
+                  <i class="fas fa-home me-1"></i> Back to Home
+                </a>
+              </p>
             </div>
 
           </form>
@@ -153,8 +176,9 @@
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
   position: relative;
   overflow: hidden;
-  padding-bottom: 50px;
-  padding-top: 50px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
 }
 
 /* Background Shapes */
@@ -163,6 +187,13 @@
   border-radius: 50%;
   opacity: 0.1;
   background: linear-gradient(135deg, #667eea, #764ba2);
+  animation: float 20s infinite ease-in-out;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  33% { transform: translateY(-20px) rotate(120deg); }
+  66% { transform: translateY(20px) rotate(240deg); }
 }
 
 .shape-1 {
@@ -170,6 +201,7 @@
   height: 300px;
   top: -100px;
   right: -100px;
+  animation-delay: 0s;
 }
 
 .shape-2 {
@@ -178,6 +210,7 @@
   bottom: -50px;
   left: -50px;
   background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+  animation-delay: -5s;
 }
 
 .shape-3 {
@@ -186,15 +219,20 @@
   top: 50%;
   left: 10%;
   background: linear-gradient(135deg, #a18cd1, #fbc2eb);
+  animation-delay: -10s;
 }
 
 /* Signup Card */
 .signup-card {
-  background: white;
-  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 24px;
   padding: 40px 35px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   animation: slideUp 0.6s ease;
+  position: relative;
+  z-index: 1;
 }
 
 @keyframes slideUp {
@@ -221,16 +259,36 @@
 .logo i {
   color: #667eea;
   font-size: 28px;
+  animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
 }
 
 /* Header */
 .signup-header h2 {
   color: #2d2f48;
   margin-bottom: 8px;
+  position: relative;
+}
+
+.signup-header h2:after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(to right, #667eea, #764ba2);
+  border-radius: 3px;
 }
 
 .signup-header p {
   color: #6c757d;
+  margin-top: 15px;
 }
 
 /* Form Styles */
@@ -238,6 +296,12 @@
   font-weight: 600;
   color: #2d2f48;
   margin-bottom: 8px;
+  display: block;
+}
+
+.form-label:after {
+  content: " *";
+  color: #dc3545;
 }
 
 .input-group {
@@ -250,6 +314,7 @@
 .input-group:focus-within {
   border-color: #667eea;
   box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+  transform: translateY(-2px);
 }
 
 .input-group-text {
@@ -257,12 +322,19 @@
   border: none;
   color: #6c757d;
   padding: 12px 15px;
+  transition: all 0.3s ease;
+}
+
+.input-group:focus-within .input-group-text {
+  background: #667eea;
+  color: white;
 }
 
 .input-group .form-control {
   border: none;
   padding: 12px 15px;
   font-size: 16px;
+  background: transparent;
 }
 
 .input-group .form-control:focus {
@@ -272,11 +344,14 @@
 
 .toggle-password {
   cursor: pointer;
-  transition: color 0.3s ease;
+  transition: all 0.3s ease;
+  background: #f8f9fa;
+  border-left: 1px solid #e9ecef;
 }
 
 .toggle-password:hover {
-  color: #667eea;
+  background: #667eea;
+  color: white;
 }
 
 /* Form Text */
@@ -284,6 +359,28 @@
   font-size: 13px;
   margin-top: 5px;
   padding-left: 5px;
+}
+
+/* Checkbox */
+.form-check-input:checked {
+  background-color: #667eea;
+  border-color: #667eea;
+}
+
+.form-check-input:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25);
+}
+
+.form-check-label a {
+  color: #667eea;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.form-check-label a:hover {
+  color: #764ba2;
+  text-decoration: underline;
 }
 
 /* Submit Button */
@@ -294,16 +391,23 @@
   font-weight: 600;
   font-size: 16px;
   transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
 }
 
 .btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+  transform: translateY(-3px);
+  box-shadow: 0 15px 30px rgba(102, 126, 234, 0.3);
+}
+
+.btn-primary:active {
+  transform: translateY(-1px);
 }
 
 /* Divider */
 .divider {
   color: #6c757d;
+  position: relative;
 }
 
 .divider::before,
@@ -314,11 +418,11 @@
 }
 
 .divider:not(:empty)::before {
-  margin-right: .5em;
+  margin-right: 1em;
 }
 
 .divider:not(:empty)::after {
-  margin-left: .5em;
+  margin-left: 1em;
 }
 
 /* Alert */
@@ -326,17 +430,114 @@
   border-radius: 12px;
   border: none;
   padding: 12px 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.alert-danger {
+  background: linear-gradient(135deg, #ff6b6b, #ff4757);
+  color: white;
+}
+
+.alert-success {
+  background: linear-gradient(135deg, #2ecc71, #27ae60);
+  color: white;
+}
+
+/* ================= DISABLE BROWSER VALIDATION STYLES ================= */
+/* Remove all browser validation styles */
+.form-control:valid,
+.form-control:invalid {
+    background-image: none !important;
+    border-color: #e9ecef !important;
+    box-shadow: none !important;
+}
+
+/* Only show your custom focus styles */
+.input-group:focus-within {
+    border-color: #667eea !important;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1) !important;
+}
+
+/* Fix for required field asterisk */
+.form-label:after {
+    color: #dc3545 !important;
+}
+
+/* Checkbox validation styles */
+.form-check-input:valid,
+.form-check-input:invalid {
+    border-color: #ced4da !important;
+    box-shadow: none !important;
+}
+
+/* Loading state for button */
+.btn-primary.loading {
+  pointer-events: none;
+  opacity: 0.8;
+}
+
+.btn-primary.loading:after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: auto;
+  border: 3px solid transparent;
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: button-loading-spinner 1s ease infinite;
+}
+
+@keyframes button-loading-spinner {
+  from { transform: rotate(0turn); }
+  to { transform: rotate(1turn); }
 }
 
 /* Responsive */
 @media (max-width: 768px) {
   .signup-card {
     padding: 30px 25px;
+    margin: 20px;
   }
   
   .bg-shape {
     display: none;
   }
+  
+  .signup-container {
+    padding: 10px;
+  }
+  
+  .btn-primary {
+    padding: 12px;
+  }
+}
+
+@media (max-width: 576px) {
+  .signup-card {
+    padding: 25px 20px;
+  }
+  
+  .signup-header h2 {
+    font-size: 1.5rem;
+  }
+  
+  .logo {
+    font-size: 20px;
+  }
+  
+  .logo i {
+    font-size: 24px;
+  }
+}
+
+/* Password validation indicators */
+#passwordMatchError, #passwordMatchSuccess {
+  transition: all 0.3s ease;
 }
 </style>
 
@@ -346,12 +547,15 @@ document.addEventListener('DOMContentLoaded', function() {
   const passwordInput = document.getElementById('password');
   const confirmPasswordInput = document.getElementById('confirmPassword');
   const passwordMatchError = document.getElementById('passwordMatchError');
+  const passwordMatchSuccess = document.getElementById('passwordMatchSuccess');
   const toggleButtons = document.querySelectorAll('.toggle-password');
+  const submitButton = form.querySelector('button[type="submit"]');
   
   // Toggle password visibility
   toggleButtons.forEach(button => {
     button.addEventListener('click', function() {
-      const input = this.closest('.input-group').querySelector('input[type="password"], input[type="text"]');
+      const inputGroup = this.closest('.input-group');
+      const input = inputGroup.querySelector('input[type="password"], input[type="text"]');
       const icon = this.querySelector('i');
       
       if (input.type === 'password') {
@@ -368,67 +572,113 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Check password match in real-time
   function checkPasswordMatch() {
-    if (confirmPasswordInput.value === '') {
-      passwordMatchError.style.display = 'none';
-      confirmPasswordInput.style.borderColor = '';
+    const password = passwordInput.value;
+    const confirmPassword = confirmPasswordInput.value;
+    
+    // Hide both messages initially
+    passwordMatchError.style.display = 'none';
+    passwordMatchSuccess.style.display = 'none';
+    
+    if (confirmPassword === '') {
       return;
     }
     
-    if (passwordInput.value !== confirmPasswordInput.value) {
+    if (password !== confirmPassword) {
       passwordMatchError.style.display = 'block';
-      confirmPasswordInput.closest('.input-group').style.borderColor = '#dc3545';
     } else {
-      passwordMatchError.style.display = 'none';
-      confirmPasswordInput.closest('.input-group').style.borderColor = '#28a745';
+      passwordMatchSuccess.style.display = 'block';
     }
   }
   
+  // Check password strength
+  function checkPasswordStrength(password) {
+    const strength = {
+      0: "Very Weak",
+      1: "Weak",
+      2: "Fair",
+      3: "Good",
+      4: "Strong"
+    };
+    
+    let score = 0;
+    
+    // Length check
+    if (password.length >= 6) score++;
+    if (password.length >= 8) score++;
+    
+    // Character variety
+    if (/[A-Z]/.test(password)) score++;
+    if (/[0-9]/.test(password)) score++;
+    if (/[^A-Za-z0-9]/.test(password)) score++;
+    
+    return {
+      score: Math.min(score, 4),
+      text: strength[Math.min(score, 4)]
+    };
+  }
+  
   // Event listeners for password fields
-  passwordInput.addEventListener('input', checkPasswordMatch);
+  passwordInput.addEventListener('input', function() {
+    checkPasswordMatch();
+    // Optional: Add password strength indicator here
+  });
+  
   confirmPasswordInput.addEventListener('input', checkPasswordMatch);
   
   // Form submission
   form.addEventListener('submit', function(e) {
+    const name = form.querySelector('input[name="name"]').value.trim();
+    const email = form.querySelector('input[name="email"]').value.trim();
     const password = passwordInput.value;
     const confirmPassword = confirmPasswordInput.value;
+    const termsChecked = form.querySelector('#termsCheck').checked;
+    
+    // Basic validation
+    if (name.length < 2) {
+      e.preventDefault();
+      showError('Name must be at least 2 characters long.');
+      return;
+    }
+    
+    if (password.length < 6) {
+      e.preventDefault();
+      showError('Password must be at least 6 characters long.');
+      return;
+    }
     
     if (password !== confirmPassword) {
       e.preventDefault();
-      passwordMatchError.style.display = 'block';
-      confirmPasswordInput.closest('.input-group').style.borderColor = '#dc3545';
+      showError('Passwords do not match.');
       confirmPasswordInput.focus();
-      
-      // Add shake animation
-      confirmPasswordInput.closest('.input-group').style.animation = 'shake 0.5s';
-      setTimeout(() => {
-        confirmPasswordInput.closest('.input-group').style.animation = '';
-      }, 500);
+      return;
     }
+    
+    if (!termsChecked) {
+      e.preventDefault();
+      showError('You must agree to the terms and conditions.');
+      return;
+    }
+    
+    // Show loading state
+    submitButton.classList.add('loading');
+    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Creating Account...';
   });
+  
+  function showError(message) {
+    // You could add a more sophisticated error display here
+    alert(message);
+  }
   
   // Add focus effects
   const inputs = form.querySelectorAll('.form-control');
   inputs.forEach(input => {
     input.addEventListener('focus', function() {
-      this.closest('.input-group').style.borderColor = '#667eea';
+      this.closest('.input-group').classList.add('focused');
     });
     
     input.addEventListener('blur', function() {
-      if (!this.value) {
-        this.closest('.input-group').style.borderColor = '#e9ecef';
-      }
+      this.closest('.input-group').classList.remove('focused');
     });
   });
 });
-
-// Add shake animation
-const style = document.createElement('style');
-style.textContent = `
-  @keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-5px); }
-    75% { transform: translateX(5px); }
-  }
-`;
-document.head.appendChild(style);
 </script>

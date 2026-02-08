@@ -10,16 +10,16 @@
   </a>
   
   <!-- Flash Messages -->
-  <% if (success_msg && success_msg.length > 0) { %>
+  <% if (messages && messages.success) { %>
     <div class="alert alert-success alert-dismissible fade show">
-      <%= success_msg %>
+      <%= messages.success %>
       <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
   <% } %>
   
-  <% if (error_msg && error_msg.length > 0) { %>
+  <% if (messages && messages.error) { %>
     <div class="alert alert-danger alert-dismissible fade show">
-      <%= error_msg %>
+      <%= messages.error %>
       <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
   <% } %>
@@ -41,14 +41,7 @@
         <div class="col-md-3">
           <select id="categoryFilter" class="form-select">
             <option value="">All Categories</option>
-            <option value="electronics">Electronics</option>
-            <option value="documents">Documents</option>
-            <option value="jewelry">Jewelry</option>
-            <option value="clothing">Clothing</option>
-            <option value="keys">Keys</option>
-            <option value="wallet">Wallet/Purse</option>
-            <option value="books">Books</option>
-            <option value="other">Other</option>
+            <!-- Categories will be populated dynamically -->
           </select>
         </div>
         <div class="col-md-2">
@@ -100,13 +93,17 @@
                 <td>
                   <% if (item.owner) { %>
                     <div class="d-flex align-items-center">
-                      <% if (item.owner.avatar) { %>
-                        <img src="<%= item.owner.avatar %>" 
+                      <% if (item.owner.profilePicture) { %>
+                        <img src="<%= item.owner.profilePicture %>" 
                              class="rounded-circle me-1 user-avatar-sm"
                              alt="<%= item.owner.name %>"
                              onerror="this.style.display='none'">
+                      <% } else { %>
+                        <div class="rounded-circle me-1 user-avatar-sm bg-secondary d-flex align-items-center justify-content-center">
+                          <i class="fas fa-user text-white" style="font-size: 10px;"></i>
+                        </div>
                       <% } %>
-                      <span class="user-name"><%= item.owner.name %></span>
+                      <span class="user-name"><%= item.owner.name || 'Unknown' %></span>
                     </div>
                   <% } else { %>
                     <span class="text-muted">Unknown</span>
@@ -115,13 +112,17 @@
                 <td>
                   <% if (item.reportedBy) { %>
                     <div class="d-flex align-items-center">
-                      <% if (item.reportedBy.avatar) { %>
-                        <img src="<%= item.reportedBy.avatar %>" 
+                      <% if (item.reportedBy.profilePicture) { %>
+                        <img src="<%= item.reportedBy.profilePicture %>" 
                              class="rounded-circle me-1 user-avatar-sm"
                              alt="<%= item.reportedBy.name %>"
                              onerror="this.style.display='none'">
+                      <% } else { %>
+                        <div class="rounded-circle me-1 user-avatar-sm bg-secondary d-flex align-items-center justify-content-center">
+                          <i class="fas fa-user text-white" style="font-size: 10px;"></i>
+                        </div>
                       <% } %>
-                      <span class="user-name"><%= item.reportedBy.name %></span>
+                      <span class="user-name"><%= item.reportedBy.name || 'Unknown' %></span>
                     </div>
                   <% } else { %>
                     <span class="text-muted">Not reported</span>
@@ -131,13 +132,13 @@
                   <% if (item.category) { %>
                     <span class="badge category-badge">
                       <i class="fas fa-<%= 
-                        item.category === 'electronics' ? 'mobile-alt' : 
-                        item.category === 'documents' ? 'file-alt' : 
-                        item.category === 'jewelry' ? 'gem' : 
-                        item.category === 'clothing' ? 'tshirt' : 
-                        item.category === 'keys' ? 'key' : 
-                        item.category === 'wallet' ? 'wallet' : 
-                        item.category === 'books' ? 'book' : 
+                        item.category.toLowerCase() === 'electronics' ? 'mobile-alt' : 
+                        item.category.toLowerCase() === 'documents' ? 'file-alt' : 
+                        item.category.toLowerCase() === 'jewelry' ? 'gem' : 
+                        item.category.toLowerCase() === 'clothing' ? 'tshirt' : 
+                        item.category.toLowerCase() === 'keys' ? 'key' : 
+                        item.category.toLowerCase() === 'wallet' ? 'wallet' : 
+                        item.category.toLowerCase() === 'books' ? 'book' : 
                         'tag' 
                       %> me-1"></i>
                       <%= item.category.charAt(0).toUpperCase() + item.category.slice(1) %>
@@ -174,7 +175,9 @@
                       <i class="fas fa-edit"></i>
                     </a>
                     
+                    <!-- FIXED: Changed delete route -->
                     <form action="/admin/items/<%= item._id %>/delete" method="POST" class="d-inline ms-1">
+                      <input type="hidden" name="_method" value="DELETE">
                       <button type="submit" class="btn btn-sm btn-danger" 
                               title="Delete Item">
                         <i class="fas fa-trash"></i>
@@ -253,6 +256,14 @@
     height: 24px;
     object-fit: cover;
     border: 1px solid #dee2e6;
+  }
+  
+  .user-avatar-sm.bg-secondary {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
   
   .user-name {
@@ -379,7 +390,6 @@
     const itemsTableBody = document.getElementById('itemsTableBody');
     const visibleCount = document.getElementById('visibleCount');
     const rows = itemsTableBody.querySelectorAll('tr[data-status]');
-    const deleteForms = document.querySelectorAll('form[action*="/delete"]');
     
     // Filter function
     function filterItems() {
@@ -390,8 +400,10 @@
       let visibleItems = 0;
       
       rows.forEach(row => {
-        const title = row.querySelector('.item-title').textContent.toLowerCase();
-        const location = row.querySelector('.text-muted.small')?.textContent.toLowerCase() || '';
+        const titleElement = row.querySelector('.item-title');
+        const title = titleElement ? titleElement.textContent.toLowerCase() : '';
+        const locationElement = row.querySelector('.text-muted.small');
+        const location = locationElement ? locationElement.textContent.toLowerCase() : '';
         const status = row.getAttribute('data-status');
         const category = row.getAttribute('data-category');
         
@@ -414,7 +426,7 @@
       
       // Show empty state if no items visible
       const emptyRow = itemsTableBody.querySelector('tr:not([data-status])');
-      if (visibleItems === 0 && !emptyRow) {
+      if (visibleItems === 0 && !emptyRow && rows.length > 0) {
         itemsTableBody.innerHTML = `
           <tr>
             <td colspan="8" class="text-center py-4">
@@ -451,18 +463,6 @@
       filterItems();
     });
     
-    // Delete confirmation
-    deleteForms.forEach(form => {
-      form.addEventListener('submit', function(e) {
-        e.preventDefault();
-        const itemTitle = this.closest('tr').querySelector('.item-title').textContent;
-        
-        if (confirm(`Are you sure you want to delete "${itemTitle}"?\n\nThis action cannot be undone.`)) {
-          this.submit();
-        }
-      });
-    });
-    
     // Populate category filter with existing categories
     function populateCategoryFilter() {
       const categories = new Set();
@@ -474,8 +474,14 @@
       });
       
       // Clear existing options except the first one
-      const existingCategories = Array.from(categoryFilter.querySelectorAll('option:not(:first-child)'));
+      const existingCategories = Array.from(categoryFilter.querySelectorAll('option'));
       existingCategories.forEach(opt => opt.remove());
+      
+      // Add default option
+      const defaultOption = document.createElement('option');
+      defaultOption.value = '';
+      defaultOption.textContent = 'All Categories';
+      categoryFilter.appendChild(defaultOption);
       
       // Add categories alphabetically
       Array.from(categories).sort().forEach(category => {
@@ -485,6 +491,19 @@
         categoryFilter.appendChild(option);
       });
     }
+    
+    // Delete confirmation
+    const deleteForms = document.querySelectorAll('form[action*="/delete"]');
+    deleteForms.forEach(form => {
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const itemTitle = this.closest('tr').querySelector('.item-title').textContent;
+        
+        if (confirm(`Are you sure you want to delete "${itemTitle}"?\n\nThis action cannot be undone.`)) {
+          this.submit();
+        }
+      });
+    });
     
     // Initialize
     populateCategoryFilter();
